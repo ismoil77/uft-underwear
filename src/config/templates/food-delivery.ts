@@ -1,0 +1,196 @@
+// ╔════════════════════════════════════════════════════════════════╗
+// ║              ПРЕСЕТ: ДОСТАВКА ЕДЫ                              ║
+// ╚════════════════════════════════════════════════════════════════╝
+
+import { AppConfig } from '@/types/config'
+
+export const foodDeliveryPreset: Partial<AppConfig> = {
+	site: {
+		name: 'Вкусная Еда',
+		description: 'Доставка еды на дом',
+		logo: '/assets/logo.svg',
+		favicon: '/assets/favicon.ico',
+		contacts: {
+			phone: '+7 (999) 888-77-66',
+			email: 'order@vkusnaya-eda.ru',
+			address: 'Москва',
+			workHours: 'Ежедневно: 10:00-23:00',
+			socials: {
+				telegram: 'https://t.me/vkusnayaeda',
+				instagram: '@vkusnaya_eda',
+			},
+		},
+		currency: { code: 'RUB', symbol: 'UZS', position: 'after' },
+		navigation: [
+			{ label: 'nav.menu', href: '/catalog' },
+			{ label: 'nav.promotions', href: '/promotions' },
+			{ label: 'nav.delivery', href: '/delivery' },
+			{ label: 'nav.contacts', href: '/contacts' },
+		],
+		seo: {
+			titleTemplate: '%s | Вкусная Еда',
+			defaultTitle: 'Вкусная Еда — Доставка еды',
+			keywords: ['доставка еды', 'заказать еду', 'пицца', 'суши'],
+		},
+	},
+
+	theme: {
+		colors: {
+			primary: '#FF5722',
+			primaryHover: '#E64A19',
+			primaryLight: '#FFCCBC',
+			secondary: '#2E7D32',
+			secondaryHover: '#1B5E20',
+			accent: '#FFC107',
+			accentHover: '#FFA000',
+			background: '#FFFDE7',
+			surface: '#FFFFFF',
+			surfaceHover: '#FFF8E1',
+			border: '#FFE082',
+			text: '#3E2723',
+			textMuted: '#795548',
+			textInverse: '#FFFFFF',
+			success: '#4CAF50',
+			error: '#F44336',
+			warning: '#FF9800',
+		},
+		fonts: {
+			heading: 'Nunito, sans-serif',
+			body: 'Nunito, sans-serif',
+		},
+		borderRadius: {
+			sm: '8px',
+			md: '12px',
+			lg: '16px',
+			xl: '24px',
+			full: '9999px',
+		},
+		shadows: {
+			card: '0 4px 12px rgba(255, 87, 34, 0.15)',
+			cardHover: '0 8px 24px rgba(255, 87, 34, 0.25)',
+			dropdown: '0 8px 32px rgba(0, 0, 0, 0.15)',
+			button: '0 4px 8px rgba(255, 87, 34, 0.3)',
+		},
+		transitions: {
+			fast: '150ms',
+			normal: '250ms',
+			slow: '350ms',
+		},
+		darkMode: false,
+	},
+
+	product: {
+		entityName: {
+			singular: 'Блюдо',
+			plural: 'Блюда',
+			genitive: 'блюд',
+		},
+		fields: [
+			{
+				key: 'weight',
+				label: 'Вес',
+				type: 'text',
+				suffix: 'г',
+				showInCard: true,
+				showInDetail: true,
+			},
+			{
+				key: 'calories',
+				label: 'Калории',
+				type: 'number',
+				suffix: 'ккал',
+				showInCard: false,
+				showInDetail: true,
+			},
+			{
+				key: 'ingredients',
+				label: 'Состав',
+				type: 'textarea',
+				showInCard: false,
+				showInDetail: true,
+			},
+			{
+				key: 'spicy',
+				label: 'Острое',
+				type: 'boolean',
+				filterable: true,
+				showInCard: true,
+				showInDetail: true,
+			},
+			{
+				key: 'vegetarian',
+				label: 'Вегетарианское',
+				type: 'boolean',
+				filterable: true,
+				showInCard: true,
+				showInDetail: true,
+			},
+			{
+				key: 'cookingTime',
+				label: 'Время готовки',
+				type: 'text',
+				suffix: 'мин',
+				showInCard: true,
+				showInDetail: true,
+			},
+		],
+		sorting: [
+			{ key: 'popular', label: 'Популярные' },
+			{ key: 'price_asc', label: 'Сначала дешевле' },
+			{ key: 'price_desc', label: 'Сначала дороже' },
+			{ key: 'newest', label: 'Новинки' },
+		],
+		display: {
+			showPrice: true,
+			showOldPrice: true,
+			showDiscount: true,
+			showRating: true,
+			showReviews: true,
+			showStock: false,
+			showSku: false,
+			imagesPerProduct: 3,
+		},
+		card: {
+			layout: 'vertical',
+			imageAspect: '16:9',
+			showQuickView: false,
+			showAddToCart: true,
+			showWishlist: true,
+			showCompare: false,
+		},
+	},
+
+	features: {
+		cart: { enabled: true, minOrder: 500, maxItems: 30, showQuantity: true },
+		checkout: {
+			guestCheckout: true,
+			requirePhone: true,
+			requireEmail: false,
+			requireAddress: true,
+			showComments: true,
+			paymentMethods: ['cash', 'card', 'online'],
+			deliveryMethods: ['courier'],
+		},
+		auth: { enabled: true, providers: ['phone'] },
+		wishlist: true,
+		compare: false,
+		reviews: true,
+		search: true,
+		filters: true,
+		categories: true,
+		brands: false,
+		integrations: {
+			analytics: { google: '', yandex: '' },
+			chat: { enabled: true, provider: 'telegram' },
+		},
+		homepage: {
+			heroBanner: true,
+			featuredProducts: true,
+			categories: true,
+			benefits: true,
+			testimonials: true,
+			brands: false,
+			newsletter: false,
+		},
+	},
+}

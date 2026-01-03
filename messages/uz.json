@@ -1,0 +1,353 @@
+{
+	"common": {
+		"loading": "Yuklanmoqda...",
+		"error": "Xatolik",
+		"retry": "Qayta",
+		"close": "Yopish",
+		"save": "Saqlash",
+		"cancel": "Bekor",
+		"delete": "O'chirish",
+		"edit": "Tahrir",
+		"search": "Qidirish",
+		"all": "Hammasi",
+		"more": "Batafsil",
+		"back": "Orqaga",
+		"next": "Keyingi",
+		"prev": "Oldingi",
+		"discount": "Chegirma"
+	},
+	"nav": {
+		"home": "Bosh sahifa",
+		"catalog": "Katalog",
+		"collections": "Kolleksiyalar",
+		"about": "Haqida",
+		"contacts": "Kontaktlar",
+		"cart": "Savat",
+		"wishlist": "Sevimlilar",
+		"account": "Kabinet",
+		"team": "Jamoa",
+		"search": "Qidirish"
+	},
+	"home": {
+		"hero": {
+			"title": "O'zingizni maxsus his qiling",
+			"subtitle": "Premium ichki kiyimlar",
+			"cta": "Katalogni ko'rish"
+		},
+		"featured": {
+			"title": "Mashhur mahsulotlar",
+			"viewAll": "Hammasini ko'rish"
+		},
+		"categories": {
+			"title": "Kategoriyalar",
+			"viewAll": "Barcha kategoriyalar"
+		},
+		"benefits": {
+			"title": "Nega bizni tanlashadi",
+			"delivery": "Bepul yetkazib berish",
+			"deliveryDesc": "5000 UZS dan ortiq",
+			"quality": "O'z ishlab chiqarish",
+			"qualityDesc": "Sifat nazorati",
+			"support": "Stilist maslahati",
+			"supportDesc": "O'lcham tanlashda yordam",
+			"premium_quality": "Premium sifat",
+			"premium_qualityDesc": "Yuqori sifatli materiallar va zamonaviy dizaynlar"
+		}
+	},
+	"catalog": {
+		"title": "Katalog",
+		"filters": "Filtrlar",
+		"sort": "Saralash",
+		"clearFilters": "Tozalash",
+		"noResults": "Topilmadi",
+		"noResultsDesc": "Parametrlarni o'zgartiring"
+	},
+	"product": {
+		"addToCart": "Savatga",
+		"buyNow": "Sotib olish",
+		"addToWishlist": "Sevimlilarga",
+		"removeFromWishlist": "O'chirish",
+		"selectSize": "O'lchamni tanlang",
+		"sizeGuide": "O'lchamlar",
+		"inStock": "Mavjud",
+		"outOfStock": "Mavjud emas",
+		"sku": "Artikul",
+		"description": "Tavsif",
+		"similar": "O'xshash",
+		"discount": "Chegirma"
+	},
+	"cart": {
+		"title": "Savat",
+		"empty": "Savat bo'sh",
+		"emptyDesc": "Mahsulot qo'shing",
+		"continueShopping": "Davom etish",
+		"item": "Mahsulot",
+		"price": "Narx",
+		"quantity": "Miqdor",
+		"total": "Jami",
+		"subtotal": "Summa",
+		"delivery": "Yetkazish",
+		"deliveryFree": "Bepul",
+		"checkout": "Buyurtma",
+		"remove": "O'chirish",
+		"clear": "Tozalash"
+	},
+	"checkout": {
+		"title": "Buyurtma",
+		"name": "Ism",
+		"phone": "Telefon",
+		"email": "Email",
+		"address": "Manzil",
+		"comment": "Izoh",
+		"commentPlaceholder": "Buyurtma izohi",
+		"placeOrder": "Tasdiqlash",
+		"orderTotal": "To'lov",
+		"success": "Rahmat!",
+		"orderNumber": "Buyurtma: {number}",
+		"contactInfo": "Kontakt ma'lumotlari"
+	},
+	"wishlist": {
+		"title": "Sevimlilar",
+		"empty": "Bo'sh",
+		"emptyDesc": "Sevimli mahsulotlar qo'shing",
+		"addedToWishlist": "Qo'shildi",
+		"removedFromWishlist": "O'chirildi"
+	},
+	"footer": {
+		"rights": "Barcha huquqlar himoyalangan",
+		"privacy": "Maxfiylik",
+		"terms": "Oferta",
+		"contacts": "Kontaktlar",
+		"workHours": "Ish vaqti",
+		"social": "Ijtimoiy tarmoqlar"
+	},
+	"language": {
+		"ru": "Русский",
+		"en": "English",
+		"uz": "O'zbek",
+		"tj": "Тоҷикӣ"
+	},
+	"errors": {
+		"required": "Majburiy",
+		"invalidEmail": "Noto'g'ri email",
+		"invalidPhone": "Noto'g'ri telefon"
+	},
+	"about": {
+		"title": "Haqida",
+		"description": "UFT — premium ichki kiyim brendi"
+	},
+	"contacts": {
+		"title": "Kontaktlar",
+		"phone": "Telefon",
+		"email": "Email",
+		"address": "Manzil"
+	},
+	"collections": {
+		"title": "Kolleksiyalar",
+		"description": "Bizning kolleksiyalar"
+	},
+	"team": { "title": "Jamoa", "description": "Jamoamiz" },
+	"orderStatus": {
+		"new": "Yangi",
+		"viewed": "Ko'rildi",
+		"called": "Qo'ng'iroq",
+		"processing": "Jarayonda",
+		"shipped": "Yuborildi",
+		"delivered": "Yetkazildi",
+		"completed": "Bajarildi",
+		"cancelled": "Bekor"
+	},
+	
+"admin": {
+	"createUser": {
+  "title": "Foydalanuvchi yaratish",
+  "editTitle": "Foydalanuvchini tahrirlash",
+  "basicInfo": "Asosiy ma'lumotlar",
+  "name": "Ism",
+  "email": "Email",
+  "password": "Parol",
+  "isAdmin": "Admin huquqi",
+  "save": "Saqlash",
+  "saving": "Saqlanmoqda...",
+  "saveError": "Saqlashda xatolik",
+  "create":"Yaratish",
+   "onSite": "Saytga o'tish",
+  "logout": "Chiqish",
+    "userCreated": "Foydalanuvchi muvaffaqiyatli yaratildi!",
+  "userUpdated": "Foydalanuvchi ma'lumotlari yangilandi!",
+    "createError": "Foydalanuvchi yaratishda xatolik. Qaytadan urinib ko'ring."
+
+   
+},
+
+  "title": "Admin paneli",
+  "onSite": "Saytga o'tish",
+  "logout": "Chiqish",
+  "products": "Mahsulotlar",
+  "categories": "Kategoriyalar",
+  "orders": "Buyurtmalar",
+  "properties": "Xususiyatlar",
+  "team": "Jamoa",
+  "collections": "To'plamlar",
+  "settings": "Sozlamalar",
+  "recentOrders": "Oxirgi buyurtmalar",
+  "allOrders": "Barcha buyurtmalar",
+  "noOrders": "Buyurtmalar hali yo'q",
+  "loading": "Yuklanmoqda...",
+  "add": "Qo'shish",
+  "id": "ID",
+  "name": "Nomi",
+  "slug": "Slug",
+  "actions": "Harakatlar",
+  "noCategories": "Kategoriyalar mavjud emas",
+  "deleteConfirm": "O'chirishni tasdiqlaysizmi?",
+  "deleteError": "O'chirishda xatolik yuz berdi",
+  "newCategory": "Yangi kategoriya",
+  "editCategory": "Kategoriyani tahrirlash",
+  "newCollection": "Yangi to'plam",
+  "editCollection": "To'plamni tahrirlash",
+  "basicInfo": "Asosiy ma'lumotlar",
+  "translations": "Tarjimalar",
+  "description": "Tavsif",
+  "saveError": "Saqlashda xatolik yuz berdi",
+  "imageUrl": "Rasm URL manzili",
+  "noCollections": "To'plamlar mavjud emas",
+  "error": "Xatolik",
+  "client": "Mijoz",
+  "sum": "Summa",
+  "status": "Holat",
+  "date": "Sana",
+  "total": "Jami",
+  "address": "Manzil",
+  "phone": "Telefon",
+  "deleteOrderConfirm": "Buyurtmani o'chirishni tasdiqlaysizmi?",
+  "photo": "Rasm",
+  "price": "Narx",
+  "deleteProductConfirm": "Mahsulotni o'chirishni tasdiqlaysizmi?",
+  "noProducts": "Mahsulotlar mavjud emas",
+  "inStock": "Mavjud",
+  "outOfStock": "Mavjud emas",
+  "propertyForm": {
+  "new": "Yangi xususiyat",
+  "edit": "Xususiyatni tahrirlash",
+
+  "basic": "Asosiy",
+  "key": "Kalit",
+  "keyPlaceholder": "size, color, material...",
+  "type": "Turi",
+
+  "options": "Variantlar",
+  "optionPlaceholder": "Qiymat",
+  "addOption": "Variant qo‘shish",
+
+  "translations": "Tarjimalar",
+
+  "save": "Saqlash",
+  "cancel": "Bekor qilish",
+  "saving": "Saqlanmoqda...",
+  "saveError": "Saqlashda xatolik",
+
+  "types": {
+    "text": "Matn",
+    "number": "Raqam",
+    "select": "Tanlash (bitta)",
+    "multiselect": "Tanlash (bir nechta)",
+    "boolean": "Ha / Yo‘q"
+  }
+}
+
+},
+"adminSettings": {
+  "tabs": {
+    "company": "Kompaniya haqida",
+    "social": "Ijtimoiy tarmoqlar",
+    "season": "Mavsumiy effektlar"
+  },
+  "headers": {
+    "settings": "Sayt sozlamalari",
+    "companyInfo": "Kompaniya haqida ma'lumot (UZ)",
+    "seasonDesc": "Saytda animatsiyani faollashtirish uchun bir mavsumni yoqing"
+  },
+  "companyFields": {
+    "title": "Nomi",
+    "description": "Tavsif",
+    "mission": "Missiya",
+    "values": "Qadriyatlar"
+  },
+  "socialFields": {
+    "telegram": "Telegram (havola)",
+    "whatsapp": "WhatsApp (raqam)",
+    "instagram": "Instagram (havola)"
+  },
+  "seasonFields": {
+    "winter": "❄️ Qish (qor parchalari)",
+    "spring": "🌸 Bahor (gulbarglar)",
+    "summer": "☀️ Yoz (quyosh)",
+    "autumn": "🍂 Kuz (barglar)"
+  },
+  "buttons": {
+    "save": "Saqlash",
+    "saving": "Saqlanmoqda...",
+    "saved": "Saqlandi!",
+    "saveError": "Saqlashda xatolik",
+    "back": "Orqaga"
+  },
+  "alerts": {
+    "loading": "Yuklanmoqda..."
+  }
+},
+
+  "adminTeam": {
+    "title": "Jamoa",
+    "headers": {
+      "new": "Yangi a'zo",
+      "editing": "A'zoni tahrirlash"
+    },
+   "adminTeam": {
+  "fields": {
+    "name": "Ism *",
+    "role": "Lavozim *",
+    "image": "Rasm URL manzili",
+    "description": "Tavsif",
+    "password": "Parol"
+  }
+}
+,
+    "buttons": {
+      "add": "Qo'shish",
+      "save": "Saqlash"
+    },
+    "alerts": {
+      "saveError": "Saqlashda xatolik",
+      "deleteConfirm": "Ushbu a'zoni o'chirishga ishonchingiz komilmi?",
+      "deleteError": "O'chirishda xatolik",
+      "noMembers": "Jamoa a'zolari hali qo'shilmagan"
+    },
+	 "adminHome": {
+  "title": "Admin paneli",
+  "menu": {
+    "products": "Mahsulotlar",
+    "categories": "Kategoriyalar",
+    "orders": "Buyurtmalar",
+    "properties": "Xususiyatlar",
+    "team": "Jamoa",
+    "collections": "To'plamlar",
+    "settings": "Sozlamalar"
+  },
+  "recentOrders": {
+    "title": "Oxirgi buyurtmalar",
+    "viewAll": "Barcha buyurtmalar",
+    "empty": "Hozircha buyurtmalar yo'q"
+  },
+  "createUser": {
+    "onSite": "Saytga",
+    "logout": "Chiqish"
+  }
+}
+
+  }
+
+
+
+
+}

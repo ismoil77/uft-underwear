@@ -1,0 +1,329 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ╔════════════════════════════════════════════════════════════════╗
+   ║                CSS ПЕРЕМЕННЫЕ ТЕМЫ                             ║
+   ║      Эти переменные генерируются из theme.config.ts            ║
+   ║      Меняй конфиг → меняется весь дизайн сайта                 ║
+   ╚════════════════════════════════════════════════════════════════╝ */
+
+:root {
+	/* ===== ЦВЕТА UFT ===== */
+	--color-primary: #d4a5a5;
+	--color-primary-hover: #c48b8b;
+	--color-primary-light: #faf0f0;
+
+	--color-secondary: #2d2d2d;
+	--color-secondary-hover: #1a1a1a;
+
+	--color-accent: #c9a962;
+	--color-accent-hover: #b8964a;
+
+	--color-background: #ffffff;
+	--color-surface: #fbf9f9;
+	--color-surface-hover: #f5f0f0;
+
+	--color-border: #e8e0e0;
+
+	--color-text: #2d2d2d;
+	--color-text-muted: #7a7a7a;
+	--color-text-inverse: #ffffff;
+
+	--color-success: #7db87d;
+	--color-error: #d47070;
+	--color-warning: #e0b060;
+
+	/* ===== ШРИФТЫ ===== */
+	--font-heading: 'Cormorant Garamond', Georgia, serif;
+	--font-body: 'Montserrat', system-ui, sans-serif;
+
+	/* ===== СКРУГЛЕНИЯ ===== */
+	--radius-sm: 4px;
+	--radius-md: 8px;
+	--radius-lg: 12px;
+	--radius-xl: 16px;
+	--radius-full: 9999px;
+
+	/* ===== ТЕНИ UFT ===== */
+	--shadow-card: 0 2px 12px rgba(212, 165, 165, 0.1);
+	--shadow-card-hover: 0 8px 30px rgba(212, 165, 165, 0.2);
+	--shadow-dropdown: 0 10px 40px rgba(0, 0, 0, 0.1);
+	--shadow-button: 0 2px 8px rgba(212, 165, 165, 0.3);
+
+	/* ===== АНИМАЦИИ ===== */
+	--transition-fast: 150ms;
+	--transition-normal: 200ms;
+	--transition-slow: 300ms;
+}
+
+/* ===== БАЗОВЫЕ СТИЛИ ===== */
+* {
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	font-family: var(--font-body);
+	color: var(--color-text);
+	background-color: var(--color-background);
+	line-height: 1.6;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: var(--font-heading);
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+button {
+	cursor: pointer;
+	font-family: inherit;
+}
+
+input,
+textarea,
+select {
+	font-family: inherit;
+}
+
+/* ===== КОМПОНЕНТЫ ===== */
+@layer components {
+	/* Кнопка Primary */
+	.btn-primary {
+		@apply inline-flex items-center justify-center px-6 py-3 
+           bg-primary text-text-inverse font-medium rounded-md
+           transition-all duration-normal
+           hover:bg-primary-hover hover:shadow-button
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+	}
+
+	/* Кнопка Secondary */
+	.btn-secondary {
+		@apply inline-flex items-center justify-center px-6 py-3 
+           bg-secondary text-text-inverse font-medium rounded-md
+           transition-all duration-normal
+           hover:bg-secondary-hover hover:shadow-button
+           focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+	}
+
+	/* Кнопка Outline */
+	.btn-outline {
+		@apply inline-flex items-center justify-center px-6 py-3 
+           border-2 border-primary text-primary font-medium rounded-md
+           transition-all duration-normal
+           hover:bg-primary hover:text-text-inverse
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+	}
+
+	/* Карточка */
+	.card {
+		@apply bg-surface rounded-lg shadow-card 
+           transition-all duration-normal
+           hover:shadow-card-hover;
+	}
+
+	/* Input */
+	.input {
+		@apply w-full px-4 py-3 
+           bg-background border border-border rounded-md
+           text-text placeholder:text-text-muted
+           transition-all duration-fast
+           focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+	}
+
+	/* Badge */
+	.badge {
+		@apply inline-flex items-center px-2.5 py-0.5 
+           text-xs font-medium rounded-full;
+	}
+
+	.badge-primary {
+		@apply bg-primary-light text-primary;
+	}
+
+	.badge-success {
+		@apply bg-green-100 text-success;
+	}
+
+	.badge-error {
+		@apply bg-red-100 text-error;
+	}
+
+	.badge-warning {
+		@apply bg-yellow-100 text-warning;
+	}
+
+	/* Container */
+	.container {
+		@apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+	}
+
+	/* Section */
+	.section {
+		@apply py-12 md:py-16 lg:py-20;
+	}
+
+	/* Section Title */
+	.section-title {
+		@apply text-2xl md:text-3xl font-bold text-text mb-8;
+	}
+}
+
+/* ===== УТИЛИТЫ ===== */
+@layer utilities {
+	/* Скрыть скроллбар */
+	.scrollbar-hide {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* Линия обрезки текста */
+	.line-clamp-1 {
+		display: -webkit-box;
+		-webkit-line-clamp: 1;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.line-clamp-2 {
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.line-clamp-3 {
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+}
+
+/* Animations */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateX(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes scaleIn {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+.animate-fadeIn {
+	animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slideIn {
+	animation: slideIn 0.4s ease-out forwards;
+}
+
+.animate-scaleIn {
+	animation: scaleIn 0.3s ease-out forwards;
+}
+
+/* Hover effects */
+.hover-lift {
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-lift:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Button styles */
+.btn-primary {
+	@apply bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-hover transition-all duration-300 hover:shadow-lg;
+}
+
+.btn-secondary {
+	@apply bg-surface text-text px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-all duration-300;
+}
+
+/* Card hover */
+.card-hover {
+	@apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+}
+
+/* Skeleton loading */
+.skeleton {
+	@apply bg-gray-200 animate-pulse rounded;
+}
+
+/* Line clamp */
+.line-clamp-2 {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.line-clamp-3 {
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}

@@ -1,0 +1,192 @@
+// ╔════════════════════════════════════════════════════════════════╗
+// ║              ПРЕСЕТ: МАГАЗИН ОДЕЖДЫ                            ║
+// ╚════════════════════════════════════════════════════════════════╝
+
+import { AppConfig } from '@/types/config'
+
+export const clothesStorePreset: Partial<AppConfig> = {
+	site: {
+		name: 'Fashion Store',
+		description: 'Модный магазин одежды',
+		logo: '/assets/logo.svg',
+		favicon: '/assets/favicon.ico',
+		contacts: {
+			phone: '+7 (999) 123-45-67',
+			email: 'info@fashion.ru',
+			address: 'Москва, ТЦ Европейский',
+			workHours: 'Ежедневно: 10:00-22:00',
+			socials: {
+				instagram: '@fashionstore',
+				telegram: 'https://t.me/fashion',
+			},
+		},
+		currency: { code: 'RUB', symbol: 'UZS', position: 'after' },
+		navigation: [
+			{ label: 'nav.catalog', href: '/catalog' },
+			{ label: 'nav.new', href: '/new' },
+			{ label: 'nav.sale', href: '/sale' },
+			{ label: 'nav.contacts', href: '/contacts' },
+		],
+		seo: {
+			titleTemplate: '%s | Fashion Store',
+			defaultTitle: 'Fashion Store — Модная одежда',
+			keywords: ['одежда', 'мода', 'купить одежду'],
+		},
+	},
+
+	theme: {
+		colors: {
+			primary: '#E91E63',
+			primaryHover: '#C2185B',
+			primaryLight: '#FCE4EC',
+			secondary: '#212121',
+			secondaryHover: '#424242',
+			accent: '#FF4081',
+			accentHover: '#F50057',
+			background: '#FFFFFF',
+			surface: '#FAFAFA',
+			surfaceHover: '#F5F5F5',
+			border: '#E0E0E0',
+			text: '#212121',
+			textMuted: '#757575',
+			textInverse: '#FFFFFF',
+			success: '#4CAF50',
+			error: '#F44336',
+			warning: '#FF9800',
+		},
+		fonts: {
+			heading: 'Playfair Display, serif',
+			body: 'Roboto, sans-serif',
+		},
+		borderRadius: {
+			sm: '2px',
+			md: '4px',
+			lg: '8px',
+			xl: '12px',
+			full: '9999px',
+		},
+		shadows: {
+			card: '0 2px 8px rgba(0, 0, 0, 0.08)',
+			cardHover: '0 8px 24px rgba(0, 0, 0, 0.12)',
+			dropdown: '0 8px 32px rgba(0, 0, 0, 0.15)',
+			button: '0 2px 4px rgba(0, 0, 0, 0.1)',
+		},
+		transitions: {
+			fast: '150ms',
+			normal: '250ms',
+			slow: '400ms',
+		},
+		darkMode: false,
+	},
+
+	product: {
+		entityName: {
+			singular: 'Товар',
+			plural: 'Товары',
+			genitive: 'товаров',
+		},
+		fields: [
+			{
+				key: 'size',
+				label: 'Размер',
+				type: 'multiselect',
+				options: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+				filterable: true,
+				showInCard: true,
+				showInDetail: true,
+				required: true,
+			},
+			{
+				key: 'color',
+				label: 'Цвет',
+				type: 'color',
+				filterable: true,
+				showInCard: true,
+				showInDetail: true,
+			},
+			{
+				key: 'material',
+				label: 'Материал',
+				type: 'text',
+				showInCard: false,
+				showInDetail: true,
+			},
+			{
+				key: 'gender',
+				label: 'Пол',
+				type: 'select',
+				options: ['Мужской', 'Женский', 'Унисекс'],
+				filterable: true,
+				showInCard: false,
+				showInDetail: true,
+			},
+			{
+				key: 'season',
+				label: 'Сезон',
+				type: 'select',
+				options: ['Весна', 'Лето', 'Осень', 'Зима', 'Всесезон'],
+				filterable: true,
+				showInCard: false,
+				showInDetail: true,
+			},
+		],
+		sorting: [
+			{ key: 'newest', label: 'Новинки' },
+			{ key: 'popular', label: 'Популярные' },
+			{ key: 'price_asc', label: 'Сначала дешевле' },
+			{ key: 'price_desc', label: 'Сначала дороже' },
+		],
+		display: {
+			showPrice: true,
+			showOldPrice: true,
+			showDiscount: true,
+			showRating: true,
+			showReviews: true,
+			showStock: true,
+			showSku: false,
+			imagesPerProduct: 6,
+		},
+		card: {
+			layout: 'vertical',
+			imageAspect: '3:4',
+			showQuickView: true,
+			showAddToCart: false,
+			showWishlist: true,
+			showCompare: false,
+		},
+	},
+
+	features: {
+		cart: { enabled: true, minOrder: 0, maxItems: 50, showQuantity: true },
+		checkout: {
+			guestCheckout: true,
+			requirePhone: true,
+			requireEmail: true,
+			requireAddress: true,
+			showComments: true,
+			paymentMethods: ['card', 'online'],
+			deliveryMethods: ['courier', 'pickup', 'post'],
+		},
+		auth: { enabled: true, providers: ['phone'] },
+		wishlist: true,
+		compare: false,
+		reviews: true,
+		search: true,
+		filters: true,
+		categories: true,
+		brands: true,
+		integrations: {
+			analytics: { google: '', yandex: '' },
+			chat: { enabled: true, provider: 'whatsapp' },
+		},
+		homepage: {
+			heroBanner: true,
+			featuredProducts: true,
+			categories: true,
+			benefits: true,
+			testimonials: true,
+			brands: true,
+			newsletter: true,
+		},
+	},
+}

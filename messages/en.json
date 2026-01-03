@@ -1,0 +1,337 @@
+{
+	"common": {
+		"loading": "Loading...",
+		"error": "Error occurred",
+		"retry": "Retry",
+		"close": "Close",
+		"save": "Save",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"edit": "Edit",
+		"search": "Search",
+		"all": "All",
+		"more": "More",
+		"back": "Back",
+		"next": "Next",
+		"prev": "Previous",
+		"discount": "Discount"
+	},
+	"nav": {
+		"home": "Home",
+		"catalog": "Catalog",
+		"collections": "Collections",
+		"about": "About",
+		"contacts": "Contacts",
+		"cart": "Cart",
+		"wishlist": "Wishlist",
+		"account": "Account",
+		"team": "Our Team",
+		"search": "Search"
+	},
+	"home": {
+		"hero": {
+			"title": "Feel Special",
+			"subtitle": "Premium lingerie from Russian manufacturer",
+			"cta": "View Catalog"
+		},
+		"featured": { "title": "Popular Products", "viewAll": "View All" },
+		"categories": { "title": "Categories", "viewAll": "All Categories" },
+		"benefits": {
+			"title": "Why Choose Us",
+			"delivery": "Free Delivery",
+			"deliveryDesc": "For orders over 5000 UZS",
+			"quality": "Own Production",
+			"qualityDesc": "Quality control at every stage",
+			"support": "Stylist Consultation",
+			"supportDesc": "We help you choose the right size",
+			"premium_quality": "Premium Quality",
+			"premium_qualityDesc": "High-quality materials and modern designs"
+		}
+	},
+	"catalog": {
+		"title": "Catalog",
+		"filters": "Filters",
+		"sort": "Sort",
+		"clearFilters": "Clear Filters",
+		"noResults": "No products found",
+		"noResultsDesc": "Try changing search parameters"
+	},
+	"product": {
+		"addToCart": "Add to Cart",
+		"buyNow": "Buy Now",
+		"addToWishlist": "Add to Wishlist",
+		"removeFromWishlist": "Remove from Wishlist",
+		"selectSize": "Select Size",
+		"sizeGuide": "Size Guide",
+		"inStock": "In Stock",
+		"outOfStock": "Out of Stock",
+		"sku": "SKU",
+		"description": "Description",
+		"similar": "You may also like",
+		"discount": "Discount"
+	},
+	"cart": {
+		"title": "Cart",
+		"empty": "Cart is empty",
+		"emptyDesc": "Add products",
+		"continueShopping": "Continue Shopping",
+		"item": "Item",
+		"price": "Price",
+		"quantity": "Quantity",
+		"total": "Total",
+		"subtotal": "Subtotal",
+		"delivery": "Delivery",
+		"deliveryFree": "Free",
+		"checkout": "Checkout",
+		"remove": "Remove",
+		"clear": "Clear Cart"
+	},
+	"checkout": {
+		"title": "Checkout",
+		"name": "Name",
+		"phone": "Phone",
+		"email": "Email",
+		"address": "Address",
+		"comment": "Comment",
+		"commentPlaceholder": "Your order comment",
+		"placeOrder": "Place Order",
+		"orderTotal": "Total",
+		"success": "Thank you for your order!",
+		"orderNumber": "Order number: {number}",
+		"contactInfo": "Contact Information"
+	},
+	"wishlist": {
+		"title": "Wishlist",
+		"empty": "Wishlist is empty",
+		"emptyDesc": "Add your favorite items",
+		"addedToWishlist": "Added to wishlist",
+		"removedFromWishlist": "Removed from wishlist"
+	},
+	"footer": {
+		"rights": "All rights reserved",
+		"privacy": "Privacy Policy",
+		"terms": "Terms of Service",
+		"contacts": "Contacts",
+		"workHours": "Working Hours",
+		"social": "Follow Us"
+	},
+	"language": {
+		"ru": "Русский",
+		"en": "English",
+		"uz": "O'zbek",
+		"tj": "Тоҷикӣ"
+	},
+	"errors": {
+		"required": "Required field",
+		"invalidEmail": "Invalid email",
+		"invalidPhone": "Invalid phone"
+	},
+	"about": {
+		"title": "About Us",
+		"description": "UFT — Russian premium lingerie brand"
+	},
+	"contacts": {
+		"title": "Contacts",
+		"phone": "Phone",
+		"email": "Email",
+		"address": "Address"
+	},
+	"collections": { "title": "Collections", "description": "Our collections" },
+	"team": { "title": "Our Team", "description": "Meet our team" },
+	"orderStatus": {
+		"new": "New",
+		"viewed": "Viewed",
+		"called": "Called",
+		"processing": "Processing",
+		"shipped": "Shipped",
+		"delivered": "Delivered",
+		"completed": "Completed",
+		"cancelled": "Cancelled"
+	},
+	
+"admin": {
+  "title": "Admin Panel",
+  "onSite": "To site",
+  "logout": "Logout",
+  "products": "Products",
+  "categories": "Categories",
+  "orders": "Orders",
+  "properties": "Properties",
+  "team": "Team",
+  "collections": "Collections",
+  "settings": "Settings",
+  "recentOrders": "Recent Orders",
+  "allOrders": "All Orders",
+  "noOrders": "No orders yet",
+  "loading": "Loading...",
+  "add": "Add",
+  "id": "ID",
+  "name": "Name",
+  "slug": "Slug",
+  "actions": "Actions",
+  "noCategories": "No categories found",
+  "deleteConfirm": "Are you sure?",
+  "deleteError": "Deletion error",
+  "newCategory": "New Category",
+  "editCategory": "Edit Category",
+  "newCollection": "New Collection",
+  "editCollection": "Edit Collection",
+  "basicInfo": "Basic Information",
+  "translations": "Translations",
+  "description": "Description",
+  "saveError": "Error while saving",
+  "imageUrl": "Image URL",
+  "noCollections": "No collections found",
+  "error": "Error",
+  "client": "Client",
+"sum": "Amount",
+"status": "Status",
+"date": "Date",
+"total": "Total",
+"address": "Address",
+"phone": "Phone",
+"deleteOrderConfirm": "Are you sure you want to delete the order?",
+"photo": "Photo",
+"price": "Price",
+"deleteProductConfirm": "Are you sure you want to delete this product?",
+"noProducts": "No products available",
+"inStock": "In stock",
+"outOfStock": "Out of stock",
+"createUser": {
+	 "title": "Create User",
+	 "editTitle": "Edit User",
+    "create":"Create",
+	 "basicInfo": "Basic Information",
+	 "name": "Name",
+	 "email": "Email",
+	 "password": "Password",
+	 "isAdmin": "Is Admin",
+
+	 "save": "Save",
+	 "saving": "Saving...",
+	 "saveError": "Save error",
+	 "logout": "Logout",
+	"onSite": "Go to Site",
+	"userCreated": "User created successfully!",
+  "userUpdated": "User updated successfully!" ,
+  "createError": "Error creating user. Please try again."
+  },
+"propertyForm": {
+    "new": "New property",
+    "edit": "Edit property",
+
+    "basic": "Basic",
+    "key": "Key",
+    "keyPlaceholder": "size, color, material...",
+    "type": "Type",
+    "options": "Options",
+    "optionPlaceholder": "Value",
+    "addOption": "Add option",
+
+    "translations": "Translations",
+
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "saveError": "Save error",
+
+    "types": {
+      "text": "Text",
+      "number": "Number",
+      "select": "Select (single)",
+      "multiselect": "Select (multiple)",
+      "boolean": "Yes / No"
+    }
+  }
+},
+"adminSettings": {
+  "tabs": {
+    "company": "About Company",
+    "social": "Social Media",
+    "season": "Seasonal Effects"
+  },
+  "headers": {
+    "settings": "Site Settings",
+    "companyInfo": "Company Information (EN)",
+    "seasonDesc": "Enable one season to activate site animation"
+  },
+  "companyFields": {
+    "title": "Title",
+    "description": "Description",
+    "mission": "Mission",
+    "values": "Values"
+  },
+  "socialFields": {
+    "telegram": "Telegram (link)",
+    "whatsapp": "WhatsApp (number)",
+    "instagram": "Instagram (link)"
+  },
+  "seasonFields": {
+    "winter": "❄️ Winter (snowflakes)",
+    "spring": "🌸 Spring (petals)",
+    "summer": "☀️ Summer (sun)",
+    "autumn": "🍂 Autumn (leaves)"
+  },
+  "buttons": {
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Saved!",
+    "saveError": "Save Error",
+    "back": "Back"
+  },
+  "alerts": {
+    "loading": "Loading..."
+  }
+},
+
+  "adminTeam": {
+    "title": "Team",
+    "headers": {
+      "new": "New Member",
+      "editing": "Editing Member"
+    },
+     "fields": {
+    "name": "Name *",
+    "role": "Role *",
+    "image": "Image URL",
+    "description": "Description",
+    "password": "Password" 
+  },
+    "buttons": {
+      "add": "Add",
+      "save": "Save"
+    },
+    "alerts": {
+      "saveError": "Error saving member",
+      "deleteConfirm": "Are you sure you want to delete this member?",
+      "deleteError": "Error deleting member",
+      "noMembers": "No team members yet"
+    }
+  },
+  "adminHome": {
+  "title": "Admin Panel",
+  "menu": {
+    "products": "Products",
+    "categories": "Categories",
+    "orders": "Orders",
+    "properties": "Properties",
+    "team": "Team",
+    "collections": "Collections",
+    "settings": "Settings"
+  },
+  "recentOrders": {
+    "title": "Recent Orders",
+    "viewAll": "All orders",
+    "empty": "No orders yet"
+  },
+  "createUser": {
+    "onSite": "To Site",
+    "logout": "Logout"
+  }
+}
+
+
+
+
+
+}
