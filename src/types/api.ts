@@ -19,9 +19,14 @@ export interface PolicyPrivacy {
 }
 
 // Тип для Сезонов/Коллекций (часто используется в фильтрах одежды)
+
 export interface Season {
   id?: number;
-  slug: string;
+  winter?: boolean;
+  spring?: boolean;
+  summer?: boolean;
+  autumn?: boolean;
+  slug?: string;
   ru?: { name: string };
   en?: { name: string };
   uz?: { name: string };

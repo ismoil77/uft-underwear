@@ -17,8 +17,7 @@ export function useProducts(categoryId?: number) {
     async function fetchProducts() {
       try {
         setLoading(true);
-        const data = await productsAPI.getAll({ categoryId });
-        setProducts(data);
+const data = await (productsAPI as any).getAll({ categoryId });        setProducts(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error loading products');
       } finally {
@@ -30,11 +29,14 @@ export function useProducts(categoryId?: number) {
   }, [categoryId]);
 
   // Возвращаем товары с локализованными данными
-  const localizedProducts = products.map((product) => ({
-    ...product,
-    localizedName: getLocalized(product, locale).name,
-    localizedDescription: getLocalized(product, locale).description,
-  }));
+const localizedProducts = products.map((product) => {
+    const localized = getLocalized(product, locale);
+    return {
+      ...product,
+      localizedName: localized?.name  || '',
+      localizedDescription: localized?.description || '',
+    };
+  });
 
   return { products: localizedProducts, loading, error, refetch: () => {} };
 }
@@ -64,14 +66,13 @@ export function useProduct(slug: string) {
     }
   }, [slug]);
 
-  const localizedProduct = product
+ const localizedProduct = product
     ? {
         ...product,
-        localizedName: getLocalized(product, locale).name,
-        localizedDescription: getLocalized(product, locale).description,
+        localizedName: getLocalized(product, locale)?.name || '',
+        localizedDescription: getLocalized(product, locale)?.description || '',
       }
     : null;
-
   return { product: localizedProduct, loading, error };
 }
 
@@ -98,11 +99,14 @@ export function useCategories() {
     fetchCategories();
   }, []);
 
-  const localizedCategories = categories.map((cat) => ({
-    ...cat,
-    localizedName: getLocalized(cat, locale).name,
-    localizedDescription: getLocalized(cat, locale).description,
-  }));
+ const localizedCategories = categories.map((cat) => {
+    const localized = getLocalized(cat, locale);
+    return {
+      ...cat,
+      localizedName: localized?.name || '',
+      localizedDescription: localized?.description || '',
+    };
+  });
 
   return { categories: localizedCategories, loading, error };
 }

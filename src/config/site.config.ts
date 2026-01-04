@@ -1,32 +1,39 @@
-export const siteConfig = {
-	name: 'UFT',
-	description: 'Магазин нижнего белья',
-	url: 'https://uft.ru',
+// Вероятно, это файл src/config/index.ts или src/config/site.ts
 
-	currency: {
-		code: 'UZS',
-		symbol: 'UZS',
-position: 'after' as 'before' | 'after', // Добавьте это приведение		
-	},
+import { SiteConfig } from '@/types'
 
-	contacts: {
-		phone: '+998 00000000',
-		email: 'info@uft.ru',
-		address: 'г. Urgut, ул. Urgut, д. 1',
-		workHours: 'Пн-Вс: 10:00-22:00',
-	},
+export const siteConfig: SiteConfig = {
+  name: "UFT Underwear",
+  description: "Лучшее нижнее белье",
+  // 1. Добавьте эти поля
+  logo: "/logo.png",
+  favicon: "/favicon.ico",
+  
+  contacts: {
+    phone: "+998...",
+    email: "info@example.com",
+    address: "Ташкент...",
+    workHours: "9:00 - 18:00",
+    socials: {
+       telegram: "@..."
+    }
+  },
 
-	social: {
-		instagram: 'https://instagram.com/uft',
-		telegram: 'https://t.me/uft',
-		whatsapp: 'https://wa.me/79991234567',
-	},
+  currency: {
+    code: "UZS",
+    symbol: "сум",
+    position: "after"
+  },
 
-	navigation: [
-		{ href: '/', label: 'nav.home' },
-		{ href: '/catalog', label: 'nav.catalog' },
-		{ href: '/collections', label: 'nav.collections' },
-		{ href: '/about', label: 'nav.about' },
-		{ href: '/contacts', label: 'nav.contacts' },
-	],
-}
+  navigation: [
+    { label: "Главная", href: "/" },
+    { label: "Каталог", href: "/catalog" }
+  ],
+
+  // 2. Убедитесь, что SEO содержит именно эти три поля (как в вашем интерфейсе)
+  seo: {
+    titleTemplate: "%s | UFT Underwear",
+    defaultTitle: "UFT Underwear - Магазин нижнего белья",
+    keywords: ["белье", "купить", "ташкент"]
+  }
+};

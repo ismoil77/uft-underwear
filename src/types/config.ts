@@ -4,8 +4,8 @@ export interface SiteConfig {
   // Основное
   name: string;
   description: string;
-  logo: string;
-  favicon: string;
+  logo: string;    // Оставляем только тип
+  favicon: string; // Оставляем только тип
 
   // Контакты
   contacts: {
@@ -38,8 +38,8 @@ export interface SiteConfig {
 
   // SEO
   seo: {
-    titleTemplate: string;
-    defaultTitle: string;
+    titleTemplate: string; // Обратите внимание: тут titleTemplate
+    defaultTitle: string;  // и defaultTitle
     keywords: string[];
   };
 }
