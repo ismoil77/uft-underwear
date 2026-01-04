@@ -23,10 +23,17 @@ export default function WishlistPage() {
 
   const handleAddToCart = (item: typeof items[0]) => {
     addToCart({
+      
       productId: item.productId,
       name: item.name,
       price: item.price,
       image: item.image,
+       collectionIds: item.collectionIds,
+      propertyIds: item.propertyIds,
+
+      categoryIds:item.categoryIds,
+      hidePrice: item.hidePrice,
+
     });
   };
 

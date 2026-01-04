@@ -49,6 +49,7 @@ export default function CartPage() {
 
   const formatPrice = (price: number) => {
     const formatted = new Intl.NumberFormat('ru-RU').format(price);
+    
     return siteConfig.currency.position === 'before'
       ? `${siteConfig.currency.symbol}${formatted}`
       : `${formatted} ${siteConfig.currency.symbol}`;
@@ -112,6 +113,8 @@ ${order.comment ? `💬 <b>Комментарий:</b> ${order.comment}` : ''}
           // Сохраняем propertyIds и collectionIds (п.22)
           propertyIds: item.propertyIds,
           collectionIds: item.collectionIds,
+                    hidePrice:item.hidePrice,
+
         })),
         total: getTotal(),
         status: 'new' as const,
@@ -220,7 +223,7 @@ ${order.comment ? `💬 <b>Комментарий:</b> ${order.comment}` : ''}
                         )}
                         
                         {/* Цена скрыта по требованию п.9 */}
-                        {/* <p className="text-primary font-semibold">{formatPrice(item.price)}</p> */}
+                       {!item.hidePrice? <p className="text-primary font-semibold">{formatPrice(item.price)}</p>:""}
                         
                         <div className="flex items-center gap-3 mt-2">
                           <div className="flex items-center border rounded-lg">
@@ -347,8 +350,8 @@ ${order.comment ? `💬 <b>Комментарий:</b> ${order.comment}` : ''}
                 <div className="flex justify-between items-center mb-4">
                   <span className="font-semibold">{t('total')}</span>
                   {/* Цена скрыта по требованию п.9 */}
-                  {/* <span className="text-xl font-bold text-primary">{formatPrice(getTotal())}</span> */}
-                  <span className="text-sm text-gray-500">Цена по запросу</span>
+                 {!items[0].hidePrice? <span className="text-xl font-bold text-primary">{formatPrice(getTotal())}</span>
+                  :<span className="text-sm text-gray-500">Цена по запросу</span>}
                 </div>
 
                 {step === 'cart' && (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { productsAPI, categoriesAPI } from '@/lib/api';
 import { Product, Category, getLocalized } from '@/types/api';
@@ -10,11 +10,14 @@ import { siteConfig } from '@/config';
 import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { ShoppingCart, Truck, Shield, HeartHandshake, ArrowRight, Heart, HeadphonesIcon, Star, Phone } from 'lucide-react';
+import ProductCard from '@/components/product/ProductCard'
+import useContacts from '@/config/useContacts'
 
 export default function HomePage() {
   const t = useTranslations('');
   const tHome = useTranslations('home');
   const tContacts = useTranslations('contacts');
+    const { phone, email, address, schedule, telegram, whatsapp, instagram } = useContacts();
 
   const benefits = [
     {
@@ -46,7 +49,7 @@ export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [scrollY, setScrollY] = useState(0);
-
+ const locale = useLocale();
   const { addItem: addToCart } = useCartStore();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
 
@@ -81,10 +84,19 @@ export default function HomePage() {
   const handleAddToCart = (product: Product) => {
     const loc = getLocalized(product, 'ru');
     addToCart({ 
+      
       productId: product.id!, 
-      name: loc?.name || '', 
+     name: loc?.name ||  'Товар без названия',
       price: product.price, 
-      image: product.images?.[0] 
+      image: product.images?.[0] || '/placeholder.png', 
+      collectionIds:product.collectionIds,
+      categoryIds:product.categoryIds,
+      hidePrice: product.hidePrice,
+      propertyIds:product.propertyIds,
+
+
+      
+
     });
   };
 
@@ -184,7 +196,7 @@ export default function HomePage() {
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                     <div className="absolute bottom-6 left-6">
-                      <h3 className="text-white font-bold text-xl">{loc?.name || cat.slug}</h3>
+                      <h3 className="text-white font-bold text-xl">{locale?.name || cat.slug}</h3>
                     </div>
                   </Link>
                 );
@@ -196,87 +208,38 @@ export default function HomePage() {
 
       {/* --- FEATURED PRODUCTS --- */}
       <section className="py-16 bg-[#F9FAFB]">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-10">
-            <h2 className="text-3xl font-heading font-bold">{t('home.featured.title')}</h2>
-            <Link href="/catalog" className="text-primary hover:underline flex items-center gap-1 font-medium">
-              {t('home.featured.viewAll')} <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
+  <div className="container mx-auto px-4">
+    <div className="flex items-center justify-between mb-10">
+      <h2 className="text-3xl font-heading font-bold">{t('home.featured.title')}</h2>
+      <Link href="/catalog" className="text-primary hover:underline flex items-center gap-1 font-medium">
+        {t('home.featured.viewAll')} <ArrowRight className="w-4 h-4" />
+      </Link>
+    </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {loading ? (
-              [1,2,3,4].map(i => <div key={i} className="aspect-[3/4] bg-white rounded-2xl animate-pulse" />)
-            ) : (
-              products.slice(0, 8).map((product) => {
-                const loc = getLocalized(product, 'ru');
-                const inWishlist = isInWishlist(product.id!);
-                const discount = product.oldPrice ? Math.round((1 - product.price / product.oldPrice) * 100) : 0;
-
-                return (
-                  <div key={product.id} className="bg-white rounded-2xl overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-300">
-                    <div className="relative aspect-[3/4] overflow-hidden">
-                      <Link href={`/catalog/${product.slug}`}>
-                        {product.images?.[0] ? (
-                          <img src={product.images[0]} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                        ) : (
-                          <div className="w-full h-full bg-gray-100 flex items-center justify-center">Нет фото</div>
-                        )}
-                      </Link>
-                      
-                      {/* Скидка - показываем только если цена не скрыта */}
-                      {discount > 0 && !product.hidePrice && (
-                        <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                          -{discount}%
-                        </div>
-                      )}
-                      
-                      <button 
-                        onClick={() => handleWishlist(product)}
-                        className={`absolute top-3 right-3 p-2.5 rounded-full transition-all ${
-                          inWishlist ? 'bg-red-500 text-white shadow-lg' : 'bg-white/90 text-gray-600 hover:bg-white'
-                        }`}
-                      >
-                        <Heart className={`w-5 h-5 ${inWishlist ? 'fill-current' : ''}`} />
-                      </button>
-                    </div>
-
-                    <div className="p-5">
-                      <Link href={`/catalog/${product.slug}`}>
-                        <h3 className="font-semibold text-gray-800 mb-2 line-clamp-1 group-hover:text-primary transition-colors">
-                          {loc?.name || product.slug}
-                        </h3>
-                      </Link>
-                      
-                      {/* Цена - показываем только если hidePrice !== true */}
-                      {!product.hidePrice ? (
-                        <div className="flex items-center gap-3 mb-4">
-                          <span className="text-xl font-bold text-secondary">{formatPrice(product.price)}</span>
-                          {product.oldPrice && (
-                            <span className="text-sm text-gray-400 line-through">{formatPrice(product.oldPrice)}</span>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="mb-4">
-                          <span className="text-sm text-gray-500">Цена по запросу</span>
-                        </div>
-                      )}
-                      
-                      <button 
-                        onClick={() => handleAddToCart(product)}
-                        className="w-full flex items-center justify-center gap-2 py-3 bg-secondary text-white rounded-xl hover:bg-secondary-hover transition-colors font-medium shadow-md"
-                      >
-                        <ShoppingCart className="w-4 h-4" />
-                        {t('product.addToCart')}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-      </section>
+    {loading ? (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {[1,2,3,4].map(i => (
+          <div key={i} className="aspect-[3/4] bg-white rounded-2xl animate-pulse" />
+        ))}
+      </div>
+    ) : (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {products.slice(0, 8).map(product => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            locale={locale}
+            isInWishlist={isInWishlist}
+            onToggleWishlist={handleWishlist}
+            onAddToCart={handleAddToCart}
+            formatPrice={formatPrice}
+            t={t}
+          />
+        ))}
+      </div>
+    )}
+  </div>
+</section>
 
       {/* --- BENEFITS SECTION --- */}
       <section className="section bg-surface">
@@ -325,10 +288,10 @@ export default function HomePage() {
         <div className="container">
           <div className="bg-gradient-to-r from-primary to-primary-hover rounded-2xl p-8 md:p-12 text-center text-white">
             <h2 className="text-2xl md:text-3xl font-heading font-bold mb-4">
-              Нужна консультация?
+             {t('consultation.needAConsultation')}
             </h2>
             <p className="text-white/80 mb-6 max-w-xl mx-auto">
-              Наши специалисты помогут подобрать идеальный размер и модель
+              {t('consultation.weWillHelpYou')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -338,13 +301,13 @@ export default function HomePage() {
                 <Phone className="w-5 h-5" />
                 {tContacts('title')}
               </Link>
-              {siteConfig.contacts.phone && (
+              {phone && (
                 <a
-                  href={`tel:${siteConfig.contacts.phone.replace(/\s/g, '')}`}
+                  href={`tel:${phone.replace(/\s/g, '')}`}
                   className="inline-flex items-center justify-center gap-2 px-8 py-3 border-2 border-white text-white rounded-full font-medium hover:bg-white/10 transition-colors"
                 >
                   <Phone className="w-5 h-5" />
-                  {siteConfig.contacts.phone}
+                  {phone}
                 </a>
               )}
             </div>

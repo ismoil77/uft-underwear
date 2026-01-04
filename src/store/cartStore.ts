@@ -12,6 +12,9 @@ export interface CartItem {
   // Добавлено для п.22
   propertyIds?: number[];
   collectionIds?: number[];
+  hidePrice?: boolean;
+  collectionsIds?: number[];
+  categoryIds?: number[];
 }
 
 interface CartStore {
@@ -68,6 +71,8 @@ export const useCartStore = create<CartStore>()(
 
       getTotal: () => {
         const { items } = get();
+        items.forEach(item => console.log(item))
+         
         return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
       },
     }),

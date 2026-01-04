@@ -57,6 +57,7 @@ export interface Product {
   propertyIds?: number[];
   properties?: number[];
   collectionIds?: number[];
+  categoryIds?: number[];
   ru?: LocalizedContent;
   en?: LocalizedContent;
   uz?: LocalizedContent;
@@ -111,7 +112,19 @@ export interface AboutCompany {
   tj?: LocalizedContent;
 }
 
-// Политика конфиденциальности
+// Социальные сети и контакты
+export interface SocialMedia {
+  id?: number;
+  // Контактная информация
+  phone?: string;
+  email?: string;
+  address?: string;
+  schedule?: string;
+  // Социальные сети
+  telegram?: string;
+  whatsapp?: string;
+  instagram?: string;
+}
 export interface Policy {
   id?: number;
   ru?: { content: string };

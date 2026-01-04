@@ -6,10 +6,12 @@ import { Link } from '@/i18n/navigation';
 import { siteConfig } from '@/config';
 import { socialMediaAPI, aboutCompanyAPI } from '@/lib/api';
 import { Phone, Mail, MapPin, Clock, MessageCircle } from 'lucide-react';
+import useContacts from '@/config/useContacts'
 
 export function Footer() {
   const t = useTranslations();
   const [social, setSocial] = useState<any>(null);
+  const { phone, email, address, schedule, telegram, whatsapp, instagram } = useContacts();
 
   useEffect(() => {
     socialMediaAPI.get().then(setSocial).catch(() => {});
@@ -49,23 +51,23 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-gray-400">
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4" />
-                <a href={`tel:${siteConfig.contacts.phone}`} className="hover:text-white">
-                  {siteConfig.contacts.phone}
+                <a href={`tel:${phone}`} className="hover:text-white">
+                  {phone}
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
-                <a href={`mailto:${siteConfig.contacts.email}`} className="hover:text-white">
-                  {siteConfig.contacts.email}
+                <a href={`mailto:${email}`} className="hover:text-white">
+                  {email}
                 </a>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 mt-0.5" />
-                <span>{siteConfig.contacts.address}</span>
+                <span>{address}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                <span>{siteConfig.contacts.workHours}</span>
+                <span>{schedule}</span>
               </li>
             </ul>
           </div>

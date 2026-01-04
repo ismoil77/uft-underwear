@@ -10,12 +10,14 @@ import { siteConfig } from '@/config';
 import { ArrowRight, ShoppingCart, Heart } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
+import ProductCard from '@/components/product/ProductCard'
 
 export default function CollectionsPage() {
   const t = useTranslations('collections');
   const tProduct = useTranslations('product');
   const locale = useLocale() as Locale;
-  
+    const tAll = useTranslations('');
+
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
@@ -81,12 +83,16 @@ export default function CollectionsPage() {
   const handleAddToCart = (product: Product) => {
     const loc = getLocalized(product, locale);
     addToCart({
+      ...product,
       productId: product.id!,
       name: loc?.name || 'Товар',
       price: product.price,
       image: product.images?.[0] || '',
       collectionIds: product.collectionIds,
       propertyIds: product.propertyIds,
+
+      categoryIds:product.categoryIds,
+      hidePrice: product.hidePrice,
     });
   };
 
@@ -116,7 +122,7 @@ export default function CollectionsPage() {
                     isSelected ? 'ring-2 ring-primary ring-offset-2 rounded-xl' : ''
                   }`}
                 >
-                  <div className="aspect-[3/4] rounded-xl overflow-hidden mb-4 relative">
+                  <div className="aspect-[3/4] rounded-xl overflow-hidden  relative">
                     {col.image ? (
                       <img 
                         src={col.image} 
@@ -159,7 +165,7 @@ export default function CollectionsPage() {
                   href={`/catalog?collection=${selectedCollection.slug}`}
                   className="text-primary hover:underline flex items-center gap-1"
                 >
-                  Все товары коллекции
+                    {t('viewAll')}
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -172,75 +178,18 @@ export default function CollectionsPage() {
                 </div>
               ) : collectionProducts.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {collectionProducts.map((product) => {
-                    const loc = getLocalized(product, locale);
-                    const discount = product.oldPrice
-                      ? Math.round((1 - product.price / product.oldPrice) * 100)
-                      : 0;
-
-                    return (
-                      <div key={product.id} className="group relative bg-white rounded-xl overflow-hidden shadow-sm">
-                        {/* Wishlist */}
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleWishlistToggle(product);
-                          }}
-                          className={`absolute top-2 right-2 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                            isInWishlist(product.id!) 
-                              ? 'bg-red-500 text-white' 
-                              : 'bg-white/80 text-gray-500 hover:text-red-500'
-                          }`}
-                        >
-                          <Heart className={`w-4 h-4 ${isInWishlist(product.id!) ? 'fill-current' : ''}`} />
-                        </button>
-                        
-                        <Link href={`/catalog/${product.slug}`}>
-                          <div className="aspect-[3/4] bg-surface relative">
-                            {product.images?.[0] ? (
-                              <img
-                                src={product.images[0]}
-                                alt={loc?.name || ''}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                Нет фото
-                              </div>
-                            )}
-                            {discount > 0 && (
-                              <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                                -{discount}%
-                              </span>
-                            )}
-                          </div>
-                        </Link>
-                        
-                        <div className="p-3">
-                          <Link href={`/catalog/${product.slug}`}>
-                            <h3 className="font-medium text-sm mb-1 line-clamp-2 hover:text-primary">
-                              {loc?.name || product.slug}
-                            </h3>
-                          </Link>
-                          
-                          {/* Цена скрыта по требованию п.9 */}
-                          {/* 
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="font-bold text-primary text-sm">{formatPrice(product.price)}</span>
-                          </div>
-                          */}
-                          
-                          <button
-                            onClick={() => handleAddToCart(product)}
-                            className="w-full flex items-center justify-center gap-1 px-2 py-1.5 bg-primary text-white rounded text-xs hover:bg-primary-hover transition-colors"
-                          >
-                            <ShoppingCart className="w-3 h-3" />
-                            {tProduct('addToCart')}
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {collectionProducts.map((product) => (
+    <ProductCard
+      key={product.id}
+      product={product}
+      locale={locale}
+      isInWishlist={isInWishlist}
+      onToggleWishlist={handleWishlistToggle}
+      onAddToCart={handleAddToCart}
+      formatPrice={formatPrice}
+      t={tAll}
+    />
+  ))}
                 </div>
               ) : (
                 <p className="text-center text-gray-500 py-8">

@@ -268,7 +268,7 @@ export default function AdminProductsPage() {
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2">
                             {/* Кнопка переключения цены */}
-                            <button
+                            {/* <button
                               onClick={() => toggleHidePrice(product)}
                               className={`p-2 rounded-lg transition-colors ${
                                 product.hidePrice
@@ -282,7 +282,7 @@ export default function AdminProductsPage() {
                               ) : (
                                 <EyeOff className="w-4 h-4" />
                               )}
-                            </button>
+                            </button> */}
                             <Link
                               href={`/admin/products/${product.id}`}
                               className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors"

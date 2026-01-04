@@ -143,9 +143,15 @@
 		"email": "Email",
 		"address": "Адрес"
 	},
+	"consultation":{
+		"needAConsultation":"Нужна консультация?",
+		"weWillHelpYou":"Мы поможем вам выбрать размер и модель",
+		"getConsultation":"Получить консультацию"
+	},
 	"collections": {
 		"title": "Коллекции",
-		"description": "Наши коллекции"
+		"description": "Наши коллекции",
+		"viewAll": "Смотреть все"
 	},
 	"team": {
 		"title": "Наша команда",
@@ -266,7 +272,8 @@
   "tabs": {
     "company": "О компании",
     "social": "Соцсети",
-    "season": "Сезонные эффекты"
+    "season": "Сезонные эффекты",
+	 "contact": "Контактная информация"
   },
   "headers": {
     "settings": "Настройки сайта",

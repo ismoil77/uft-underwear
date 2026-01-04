@@ -142,9 +142,15 @@
 		"email": "Email",
 		"address": "Manzil"
 	},
+"consultation": {
+  "needAConsultation": "Maslahat kerakmi?",
+  "weWillHelpYou": "Sizga o'lcham va modelni tanlashda yordam beramiz",
+  "getConsultation": "Maslahat olish"
+},
 	"collections": {
 		"title": "Kolleksiyalar",
-		"description": "Bizning kolleksiyalar"
+		"description": "Bizning kolleksiyalar",
+    "viewAll": "Hammasini ko'rish"
 	},
 	"team": { "title": "Jamoa", "description": "Jamoamiz" },
 	"orderStatus": {
@@ -263,7 +269,8 @@
   "tabs": {
     "company": "Kompaniya haqida",
     "social": "Ijtimoiy tarmoqlar",
-    "season": "Mavsumiy effektlar"
+    "season": "Mavsumiy effektlar",
+    "contact": "Kontakt ma'lumotlari"
   },
   "headers": {
     "settings": "Sayt sozlamalari",

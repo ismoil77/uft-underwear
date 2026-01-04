@@ -244,7 +244,7 @@ export default function AdminProductEditPage({ params }: Props) {
                 </div>
 
                 {/* Новое поле: Скрыть цену */}
-                <div className="flex items-center gap-3">
+                {/* <div className="flex items-center gap-3">
                   <input
                     type="checkbox"
                     id="hidePrice"
@@ -256,7 +256,7 @@ export default function AdminProductEditPage({ params }: Props) {
                     <EyeOff className="w-4 h-4 text-orange-500" />
                     Скрыть цену
                   </label>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

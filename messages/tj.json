@@ -136,7 +136,12 @@
 		"email": "Email",
 		"address": "Суроға"
 	},
-	"collections": { "title": "Коллексияҳо", "description": "Коллексияҳои мо" },
+  	"consultation":{
+		"needAConsultation":"Оё ба машварат ниёз доред?",
+		"weWillHelpYou":"Мо ба шумо дар интихоби андоза ва модел кӯмак мекунем",
+		"getConsultation":"Ба даст овардани машварат"
+	},
+	"collections": { "title": "Коллексияҳо", "description": "Коллексияҳои мо", "viewAll": "Ҳама" },
 	"team": { "title": "Даста", "description": "Дастаи мо" },
 	"orderStatus": {
 		"new": "Нав",
@@ -251,12 +256,14 @@
   "tabs": {
     "company": "Дар бораи ширкат",
     "social": "Шабакаҳои иҷтимоӣ",
-    "season": "Эффектҳои мавсимӣ"
+    "season": "Эффектҳои мавсимӣ",
+       "contact": "Маълумоти тамос"
   },
   "headers": {
     "settings": "Танзимоти сайт",
     "companyInfo": "Маълумот дар бораи ширкат (TJ)",
     "seasonDesc": "Барои фаъол кардани аниматсия дар сайт як мавсимро интихоб кунед"
+
   },
   "companyFields": {
     "title": "Ном",

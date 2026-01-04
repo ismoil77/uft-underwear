@@ -206,8 +206,8 @@ export default function ProductPage({ params }: Props) {
           </div>
 
           {/* Цена скрыта по требованию п.9 */}
-          {/* 
-          <div className="flex items-center gap-4">
+          
+         {!product.hidePrice? <div className="flex items-center gap-4">
             <span className="text-3xl font-bold text-primary">
               {formatPrice(product.price)}
             </span>
@@ -216,8 +216,8 @@ export default function ProductPage({ params }: Props) {
                 {formatPrice(product.oldPrice)}
               </span>
             )}
-          </div>
-          */}
+          </div>:""}
+         
 
           {/* Stock Status */}
           <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm ${

@@ -12,7 +12,7 @@ export default function AdminSettingsPage() {
   const tLang = useTranslations('language');
   const locale = useLocale() as Locale;
 
-  const [tab, setTab] = useState<'company' | 'social' | 'season'>('company');
+  const [tab, setTab] = useState<'company' | 'contact' | 'social' | 'season'>('company');
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -23,12 +23,18 @@ export default function AdminSettingsPage() {
     tj: { title: '', description: '', mission: '', values: '' },
     uz: { title: '', description: '', mission: '', values: '' }
   });
+  
   const [social, setSocial] = useState<any>({
     id: null,
+    phone: '',
+    email: '',
+    address: '',
+    schedule: '',
     telegram: '',
     whatsapp: '',
     instagram: ''
   });
+  
   const [season, setSeason] = useState<any>({
     id: null,
     winter: false,
@@ -37,7 +43,6 @@ export default function AdminSettingsPage() {
     autumn: false
   });
 
-  // Языки для переводов О компании
   const languages = [
     { code: 'ru', label: 'Русский', flag: '🇷🇺' },
     { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -65,9 +70,11 @@ export default function AdminSettingsPage() {
           const res = await aboutCompanyAPI.create(company);
           setCompany(res);
         }
-      } else if (tab === 'social') {
-        if (social.id) await socialMediaAPI.update(social.id, social);
-        else {
+      } else if (tab === 'contact' || tab === 'social') {
+        // Контакты и соц.сети сохраняются в одну таблицу
+        if (social.id) {
+          await socialMediaAPI.update(social.id, social);
+        } else {
           const res = await socialMediaAPI.create(social);
           setSocial(res);
         }
@@ -80,13 +87,13 @@ export default function AdminSettingsPage() {
       }
       alert(t('buttons.saved'));
     } catch (e) {
+      console.error('Save error:', e);
       alert(t('buttons.saveError'));
     } finally {
       setSaving(false);
     }
   };
 
-  // Функция выбора одного сезона (п.16)
   const handleSeasonSelect = (selectedSeason: 'winter' | 'spring' | 'summer' | 'autumn') => {
     setSeason({
       ...season,
@@ -97,7 +104,6 @@ export default function AdminSettingsPage() {
     });
   };
 
-  // Получить текущий выбранный сезон
   const getCurrentSeason = (): string | null => {
     if (season.winter) return 'winter';
     if (season.spring) return 'spring';
@@ -128,8 +134,8 @@ export default function AdminSettingsPage() {
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Tabs */}
-        <div className="flex gap-2 mb-6">
-          {(['company', 'social', 'season'] as const).map((id) => (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {(['company', 'contact', 'social', 'season'] as const).map((id) => (
             <button
               key={id}
               onClick={() => setTab(id)}
@@ -142,7 +148,7 @@ export default function AdminSettingsPage() {
           ))}
         </div>
 
-        {/* Company - с переводами на все языки (п.14) */}
+        {/* Company */}
         {tab === 'company' && (
           <div className="space-y-6">
             {languages.map((lang) => (
@@ -159,7 +165,7 @@ export default function AdminSettingsPage() {
                     onChange={(e) =>
                       setCompany({
                         ...company,
-                        [lang.code]: { ...company[lang.code], title: e.target.value }
+                        [lang.code]: { ...company[lang.code], title: e.target.value },
                       })
                     }
                     className="w-full px-3 py-2 border rounded-lg"
@@ -170,7 +176,7 @@ export default function AdminSettingsPage() {
                     onChange={(e) =>
                       setCompany({
                         ...company,
-                        [lang.code]: { ...company[lang.code], description: e.target.value }
+                        [lang.code]: { ...company[lang.code], description: e.target.value },
                       })
                     }
                     className="w-full px-3 py-2 border rounded-lg"
@@ -182,7 +188,7 @@ export default function AdminSettingsPage() {
                     onChange={(e) =>
                       setCompany({
                         ...company,
-                        [lang.code]: { ...company[lang.code], mission: e.target.value }
+                        [lang.code]: { ...company[lang.code], mission: e.target.value },
                       })
                     }
                     className="w-full px-3 py-2 border rounded-lg"
@@ -194,7 +200,7 @@ export default function AdminSettingsPage() {
                     onChange={(e) =>
                       setCompany({
                         ...company,
-                        [lang.code]: { ...company[lang.code], values: e.target.value }
+                        [lang.code]: { ...company[lang.code], values: e.target.value },
                       })
                     }
                     className="w-full px-3 py-2 border rounded-lg"
@@ -206,12 +212,61 @@ export default function AdminSettingsPage() {
           </div>
         )}
 
+        {/* Contact Info */}
+        {tab === 'contact' && (
+          <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
+            <h2 className="text-lg font-semibold">{t('tabs.contact')}</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">📱 Телефон</label>
+                <input
+                  type="tel"
+                  placeholder="+998 90 123 45 67"
+                  value={social.phone || ''}
+                  onChange={(e) => setSocial({ ...social, phone: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">📧 Email</label>
+                <input
+                  type="email"
+                  placeholder="info@uft.uz"
+                  value={social.email || ''}
+                  onChange={(e) => setSocial({ ...social, email: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">📍 Адрес</label>
+                <input
+                  type="text"
+                  placeholder="г. Ургут, ул. Навои, д. 1"
+                  value={social.address || ''}
+                  onChange={(e) => setSocial({ ...social, address: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">🕐 Расписание работы</label>
+                <input
+                  type="text"
+                  placeholder="Пн-Вс: 10:00-22:00"
+                  value={social.schedule || ''}
+                  onChange={(e) => setSocial({ ...social, schedule: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Social */}
         {tab === 'social' && (
           <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
             <h2 className="text-lg font-semibold">{t('tabs.social')}</h2>
             <div>
-              <label className="block text-sm font-medium mb-1">{t('socialFields.telegram')}</label>
+              <label className="block text-sm font-medium mb-1">📱 {t('socialFields.telegram')}</label>
               <input
                 type="url"
                 placeholder="https://t.me/..."
@@ -221,17 +276,17 @@ export default function AdminSettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">{t('socialFields.whatsapp')}</label>
+              <label className="block text-sm font-medium mb-1">💬 {t('socialFields.whatsapp')}</label>
               <input
                 type="text"
-                placeholder="+79991234567"
+                placeholder="+998901234567"
                 value={social.whatsapp || ''}
                 onChange={(e) => setSocial({ ...social, whatsapp: e.target.value })}
                 className="w-full px-3 py-2 border rounded-lg"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">{t('socialFields.instagram')}</label>
+              <label className="block text-sm font-medium mb-1">📸 {t('socialFields.instagram')}</label>
               <input
                 type="url"
                 placeholder="https://instagram.com/..."
@@ -243,15 +298,13 @@ export default function AdminSettingsPage() {
           </div>
         )}
 
-        {/* Season - исправлено на выбор ОДНОГО сезона (п.16) */}
+        {/* Season */}
         {tab === 'season' && (
           <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
             <h2 className="text-lg font-semibold">{t('tabs.season')}</h2>
             <p className="text-sm text-gray-500">{t('headers.seasonDesc')}</p>
             
-            {/* Radio buttons вместо checkboxes для выбора одного */}
             <div className="space-y-3">
-              {/* None option */}
               <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                 <input
                   type="radio"

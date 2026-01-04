@@ -11,6 +11,7 @@ import { ShoppingCart, Filter, X, Heart } from 'lucide-react';
 import { siteConfig } from '@/config';
 import { useSearchParams } from 'next/navigation';
 import { Locale } from '@/config/api.config';
+import ProductCard from '@/components/product/ProductCard'
 
 export default function CatalogPage() {
   const t = useTranslations();
@@ -99,6 +100,10 @@ export default function CatalogPage() {
       name: loc?.name || 'Товар',
       price: product.price,
       image: product.images?.[0] || '',
+       collectionIds: product.collectionIds,
+      propertyIds: product.propertyIds,
+      categoryIds:product.categoryIds,
+      hidePrice: product.hidePrice,
     });
   };
 
@@ -170,7 +175,7 @@ export default function CatalogPage() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id!)}
-                  className={`block w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedCategory === cat.id ? 'bg-primary text-white' : 'hover:bg-surface'}`}
+                  className={`block border border-primary-light w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedCategory === cat.id ? 'bg-primary text-white' : 'hover:bg-surface'}`}
                 >
                   {getLocalized(cat, locale)?.name || cat.slug}
                 </button>
@@ -183,7 +188,7 @@ export default function CatalogPage() {
                 <h3 className="font-semibold">{t('collections.title')}</h3>
                 <button
                   onClick={() => setSelectedCollection(null)}
-                  className={`block w-full text-left px-3 py-2 rounded-lg transition-colors ${!selectedCollection ? 'bg-primary text-white' : 'hover:bg-surface'}`}
+                  className={`block  w-full text-left px-3 py-2 rounded-lg transition-colors ${!selectedCollection ? 'bg-primary text-white' : 'hover:bg-surface'}`}
                 >
                   {t('common.all')}
                 </button>
@@ -191,7 +196,7 @@ export default function CatalogPage() {
                   <button
                     key={col.id}
                     onClick={() => setSelectedCollection(col.slug)}
-                    className={`block w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedCollection === col.slug ? 'bg-primary text-white' : 'hover:bg-surface'}`}
+                    className={`block border border-primary-light w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedCollection === col.slug ? 'bg-primary text-white' : 'hover:bg-surface'}`}
                   >
                     {getLocalized(col, locale)?.name || col.slug}
                   </button>
@@ -203,84 +208,33 @@ export default function CatalogPage() {
 
         {/* Products Grid */}
         <div className="flex-1">
-          {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-              {filteredProducts.map((product) => {
-                const loc = getLocalized(product, locale);
-                const discount = product.oldPrice
-                  ? Math.round((1 - product.price / product.oldPrice) * 100)
-                  : 0;
+  {filteredProducts.length > 0 ? (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+      {filteredProducts.map((product) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          locale={locale}
+          isInWishlist={isInWishlist}
+          onToggleWishlist={handleWishlistToggle}
+          onAddToCart={handleAddToCart}
+          formatPrice={formatPrice}
+          t={t}
+        />
+      ))}
+    </div>
+  ) : (
+    <div className="text-center py-12">
+      <p className="text-gray-500">
+        {t('catalog.noResults')}
+      </p>
+      <p className="text-sm text-gray-400 mt-1">
+        {t('catalog.noResultsDesc')}
+      </p>
+    </div>
+  )}
+</div>
 
-                return (
-                  <div key={product.id} className="group relative">
-                    {/* Wishlist Button */}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleWishlistToggle(product);
-                      }}
-                      className={`absolute top-2 right-2 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                        isInWishlist(product.id!) 
-                          ? 'bg-red-500 text-white' 
-                          : 'bg-white/80 text-gray-500 hover:text-red-500'
-                      }`}
-                    >
-                      <Heart className={`w-4 h-4 ${isInWishlist(product.id!) ? 'fill-current' : ''}`} />
-                    </button>
-                    
-                    <Link href={`/catalog/${product.slug}`}>
-                      <div className="aspect-[3/4] bg-surface rounded-xl overflow-hidden mb-3 relative">
-                        {product.images?.[0] ? (
-                          <img
-                            src={product.images[0]}
-                            alt={loc?.name || ''}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-300">
-                            Нет фото
-                          </div>
-                        )}
-                        {discount > 0 && (
-                          <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                            -{discount}%
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="font-medium mb-1 line-clamp-2">{loc?.name || product.slug}</h3>
-                    </Link>
-                    
-                    {/* Цена скрыта по требованию п.9 - закомментирована */}
-                    {/* 
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="font-bold text-primary">{formatPrice(product.price)}</span>
-                      {product.oldPrice && (
-                        <span className="text-sm text-gray-400 line-through">{formatPrice(product.oldPrice)}</span>
-                      )}
-                    </div>
-                    */}
-                    
-                    {/* Кнопка "В корзину" перемещена вниз */}
-                    <div className="mt-auto pt-2">
-                      <button
-                        onClick={() => handleAddToCart(product)}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors text-sm"
-                      >
-                        <ShoppingCart className="w-4 h-4" />
-                        {t('product.addToCart')}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-500">{t('catalog.noResults')}</p>
-              <p className="text-sm text-gray-400 mt-1">{t('catalog.noResultsDesc')}</p>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

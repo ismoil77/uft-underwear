@@ -28,6 +28,11 @@
 		"team": "Our Team",
 		"search": "Search"
 	},
+		"consultation":{
+		"needAConsultation":"Need a consultation?",
+		"weWillHelpYou":"We will help you choose the size and model",
+		"getConsultation":"Get Consultation"
+	},
 	"home": {
 		"hero": {
 			"title": "Feel Special",
@@ -136,7 +141,7 @@
 		"email": "Email",
 		"address": "Address"
 	},
-	"collections": { "title": "Collections", "description": "Our collections" },
+	"collections": { "title": "Collections", "description": "Our collections", "viewAll": "View All" },
 	"team": { "title": "Our Team", "description": "Meet our team" },
 	"orderStatus": {
 		"new": "New",
@@ -250,12 +255,15 @@
   "tabs": {
     "company": "About Company",
     "social": "Social Media",
-    "season": "Seasonal Effects"
+    "season": "Seasonal Effects",
+	 	 	 "contact": "Contact Information"
+
   },
   "headers": {
     "settings": "Site Settings",
     "companyInfo": "Company Information (EN)",
     "seasonDesc": "Enable one season to activate site animation"
+
   },
   "companyFields": {
     "title": "Title",
