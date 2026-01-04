@@ -128,13 +128,13 @@ export default function AdminPage() {
 			count: stats.properties,
 			color: 'bg-orange-500',
 		},
-		{
-			title: t('menu.team'),
-			href: '/admin/team',
-			icon: Users,
-			count: stats.team,
-			color: 'bg-pink-500',
-		},
+		// {
+		// 	title: t('menu.team'),
+		// 	href: '/admin/team',
+		// 	icon: Users,
+		// 	count: stats.team,
+		// 	color: 'bg-pink-500',
+		// },
 		{
 			title: t('menu.collections'),
 			href: '/admin/collections',
