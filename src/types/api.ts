@@ -37,6 +37,7 @@ export interface Collection {
 export interface Property {
   id?: number;
   key: string;
+  type: 'text' | 'number' | 'select' | 'multiselect' | 'boolean';
   ru?: LocalizedContent;
   en?: LocalizedContent;
   uz?: LocalizedContent;
