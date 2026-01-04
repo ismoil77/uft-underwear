@@ -8,7 +8,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ShoppingBag, Heart, Menu, X, Search } from 'lucide-react';
-
+import Image from 'next/image'
 export function Header() {
   const t = useTranslations('nav');
   const pathname = usePathname();
@@ -52,12 +52,19 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
    
   };
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-40">
+    <header className="bg-white shadow-sm sticky top-0 z-40 bg-opacity-75">
       <div className="container">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link href="/" className="text-2xl font-heading font-bold text-primary">
-            {siteConfig.name}
+            {/* {siteConfig.name} */}
+           <Image 
+  src="/assets/uftIcon.png"
+  alt="Logo" 
+  width={80} // Укажите нужную ширину
+  height={50}  // Укажите нужную высоту
+  priority     // Добавьте это, так как логотип обычно в хедере (LCP)
+/>
           </Link>
 
           {/* Desktop Nav */}
@@ -66,7 +73,7 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
+                className={`text-[18px] font-medium transition-colors hover:text-primary ${
                   pathname === item.href ? 'text-primary' : 'text-text'
                 }`}
               >
