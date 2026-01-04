@@ -6,13 +6,42 @@ import { Link } from '@/i18n/navigation';
 import { productsAPI, categoriesAPI } from '@/lib/api';
 import { Product, Category, getLocalized } from '@/types/api';
 import { siteConfig } from '@/config';
-import { ShoppingCart, Truck, Shield, HeartHandshake, ArrowRight, Heart } from 'lucide-react';
+
 import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
-import { Benefits } from '@/components/home/Benefits'
+import { ShoppingCart, Truck, Shield, HeartHandshake, ArrowRight, Heart, HeadphonesIcon, Star, Phone } from 'lucide-react';
 
 export default function HomePage() {
-  const t = useTranslations();
+  const t = useTranslations('');
+  const tHome = useTranslations('home');
+  const tContacts = useTranslations('contacts');
+
+  const benefits = [
+    {
+      // Консультация теперь ведет на контакты (п.5)
+      icon: HeadphonesIcon,
+      title: tHome('benefits.support'),
+      desc: tHome('benefits.supportDesc'),
+      isLink: true,
+      href: '/contacts',
+    },
+    {
+      icon: Truck,
+      title: tHome('benefits.delivery'),
+      desc: tHome('benefits.deliveryDesc'),
+    },
+    {
+      icon: Shield,
+      title: tHome('benefits.quality'),
+      desc: tHome('benefits.qualityDesc'),
+    },
+    {
+      icon: Star,
+      title: tHome('benefits.premium_quality'),
+      desc: tHome('benefits.premium_qualityDesc'),
+    },
+  ];
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,9 +71,9 @@ export default function HomePage() {
   }, []);
 
   // Расчеты для анимации
-  const opacity = Math.max(1 - scrollY / 600, 0); // Исчезнет полностью к 600px скролла
-  const heroTranslate = scrollY * 0.4; // Текст улетает чуть медленнее
-  const bgTranslate = scrollY * 0.2;   // Фон движется медленно (параллакс)
+  const opacity = Math.max(1 - scrollY / 600, 0);
+  const heroTranslate = scrollY * 0.4;
+  const bgTranslate = scrollY * 0.2;
 
   const formatPrice = (price: number) => 
     `${new Intl.NumberFormat('ru-RU').format(price)} ${siteConfig.currency.symbol}`;
@@ -195,7 +224,8 @@ export default function HomePage() {
                         )}
                       </Link>
                       
-                      {discount > 0 && (
+                      {/* Скидка - показываем только если цена не скрыта */}
+                      {discount > 0 && !product.hidePrice && (
                         <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
                           -{discount}%
                         </div>
@@ -217,12 +247,21 @@ export default function HomePage() {
                           {loc?.name || product.slug}
                         </h3>
                       </Link>
-                      <div className="flex items-center gap-3 mb-4">
-                        <span className="text-xl font-bold text-secondary">{formatPrice(product.price)}</span>
-                        {product.oldPrice && (
-                          <span className="text-sm text-gray-400 line-through">{formatPrice(product.oldPrice)}</span>
-                        )}
-                      </div>
+                      
+                      {/* Цена - показываем только если hidePrice !== true */}
+                      {!product.hidePrice ? (
+                        <div className="flex items-center gap-3 mb-4">
+                          <span className="text-xl font-bold text-secondary">{formatPrice(product.price)}</span>
+                          {product.oldPrice && (
+                            <span className="text-sm text-gray-400 line-through">{formatPrice(product.oldPrice)}</span>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="mb-4">
+                          <span className="text-sm text-gray-500">Цена по запросу</span>
+                        </div>
+                      )}
+                      
                       <button 
                         onClick={() => handleAddToCart(product)}
                         className="w-full flex items-center justify-center gap-2 py-3 bg-secondary text-white rounded-xl hover:bg-secondary-hover transition-colors font-medium shadow-md"
@@ -239,27 +278,79 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* --- BENEFITS --- */}
-      {/* <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {[
-              { icon: Truck, title: t('home.benefits.delivery'), desc: t('home.benefits.deliveryDesc') },
-              { icon: Shield, title: t('home.benefits.quality'), desc: t('home.benefits.qualityDesc') },
-              { icon: HeartHandshake, title: t('home.benefits.support'), desc: t('home.benefits.supportDesc') },
-            ].map((item, i) => (
-              <div key={i} className="flex flex-col items-center text-center group">
-                <div className="w-20 h-20 bg-primary/5 rounded-3xl flex items-center justify-center mb-6 group-hover:bg-primary/10 group-hover:rotate-6 transition-all duration-300">
-                  <item.icon className="w-10 h-10 text-primary" />
+      {/* --- BENEFITS SECTION --- */}
+      <section className="section bg-surface">
+        <div className="container">
+          <h2 className="section-title text-center">{tHome('benefits.title')}</h2>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {benefits.map((benefit, i) => {
+              const Icon = benefit.icon;
+              
+              // Если это консультация - делаем кликабельным с переходом на контакты
+              if (benefit.isLink && benefit.href) {
+                return (
+                  <Link
+                    key={i}
+                    href={benefit.href}
+                    className="text-center p-6 bg-white rounded-xl shadow-card hover:shadow-card-hover transition-all group cursor-pointer"
+                  >
+                    <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Icon className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors">{benefit.title}</h3>
+                    <p className="text-sm text-text-muted">{benefit.desc}</p>
+                  </Link>
+                );
+              }
+              
+              return (
+                <div
+                  key={i}
+                  className="text-center p-6 bg-white rounded-xl shadow-card hover:shadow-card-hover transition-shadow"
+                >
+                  <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
+                    <Icon className="w-8 h-8 text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-2">{benefit.title}</h3>
+                  <p className="text-sm text-text-muted">{benefit.desc}</p>
                 </div>
-                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                <p className="text-text-muted max-w-xs">{item.desc}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
-      </section> */}
-      <Benefits/>
+      </section>
+
+      {/* CTA Section - переход на контакты для консультации */}
+      <section className="section">
+        <div className="container">
+          <div className="bg-gradient-to-r from-primary to-primary-hover rounded-2xl p-8 md:p-12 text-center text-white">
+            <h2 className="text-2xl md:text-3xl font-heading font-bold mb-4">
+              Нужна консультация?
+            </h2>
+            <p className="text-white/80 mb-6 max-w-xl mx-auto">
+              Наши специалисты помогут подобрать идеальный размер и модель
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/contacts"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-white text-primary rounded-full font-medium hover:bg-gray-100 transition-colors"
+              >
+                <Phone className="w-5 h-5" />
+                {tContacts('title')}
+              </Link>
+              {siteConfig.contacts.phone && (
+                <a
+                  href={`tel:${siteConfig.contacts.phone.replace(/\s/g, '')}`}
+                  className="inline-flex items-center justify-center gap-2 px-8 py-3 border-2 border-white text-white rounded-full font-medium hover:bg-white/10 transition-colors"
+                >
+                  <Phone className="w-5 h-5" />
+                  {siteConfig.contacts.phone}
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

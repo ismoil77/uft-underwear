@@ -3,12 +3,14 @@
 import { useState, useEffect, use } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { productsAPI } from '@/lib/api';
-import { Product, getLocalized } from '@/types/api';
+import { productsAPI, propertiesAPI, collectionsAPI } from '@/lib/api';
+import { Product, Property, Collection, getLocalized } from '@/types/api';
 import { Locale } from '@/config/api.config';
 import { siteConfig } from '@/config';
 import { useCartStore } from '@/store/cartStore';
-import { ShoppingCart, Heart, ChevronLeft, Check } from 'lucide-react';
+import { useWishlistStore } from '@/store/wishlistStore';
+import { ShoppingCart, Heart, ChevronLeft, Check, Share2 } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 
 type Props = {
   params: Promise<{ slug: string; locale: string }>;
@@ -17,11 +19,15 @@ type Props = {
 export default function ProductPage({ params }: Props) {
   const { slug } = use(params);
   const t = useTranslations('product');
+  const tCommon = useTranslations('common');
   const locale = useLocale() as Locale;
   const router = useRouter();
   const { addItem } = useCartStore();
+  const { items: wishlistItems, addItem: addToWishlist, removeItem: removeFromWishlist } = useWishlistStore();
 
   const [product, setProduct] = useState<Product | null>(null);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedImage, setSelectedImage] = useState(0);
@@ -31,8 +37,14 @@ export default function ProductPage({ params }: Props) {
     async function fetchProduct() {
       try {
         setLoading(true);
-        const data = await productsAPI.getBySlug(slug);
+        const [data, props, cols] = await Promise.all([
+          productsAPI.getBySlug(slug),
+          propertiesAPI.getAll(),
+          collectionsAPI.getAll(),
+        ]);
         setProduct(data);
+        setProperties(props);
+        setCollections(cols);
       } catch (error) {
         console.error('Error fetching product:', error);
       } finally {
@@ -43,17 +55,40 @@ export default function ProductPage({ params }: Props) {
     fetchProduct();
   }, [slug]);
 
+  // Проверка, находится ли продукт в избранном (п.20 - исправлен лайк в getById)
+  const isInWishlist = product?.id ? wishlistItems.some(item => item.productId === product.id) : false;
+
+  const handleWishlistToggle = () => {
+    if (!product) return;
+    
+    const localized = getLocalized(product, locale);
+    
+    if (isInWishlist) {
+      removeFromWishlist(product.id!);
+    } else {
+      addToWishlist({
+        productId: product.id!,
+        name: localized?.name || product.slug,
+        price: product.price,
+        image: product.images?.[0] || '',
+      });
+    }
+  };
+
   const handleAddToCart = () => {
     if (!product) return;
 
     const localized = getLocalized(product, locale);
     
     addItem({
-      productId: product.id,
-      name: localized.name,
+      productId: product.id!,
+      name: localized?.name || product.slug,
       price: product.price,
-      image: product.images[0] || '',
+      image: product.images?.[0] || '',
       size: selectedSize,
+      // Добавляем propertyIds и collectionIds в корзину (п.22)
+      propertyIds: product.propertyIds,
+      collectionIds: product.collectionIds,
     });
 
     setAddedToCart(true);
@@ -68,31 +103,33 @@ export default function ProductPage({ params }: Props) {
       : `${formatted} ${siteConfig.currency.symbol}`;
   };
 
+  // Получение свойств продукта
+  const getProductProperties = () => {
+    if (!product?.propertyIds || !properties.length) return [];
+    return properties.filter(p => product.propertyIds?.includes(p.id!));
+  };
+
+  // Получение коллекций продукта
+  const getProductCollections = () => {
+    if (!product?.collectionIds || !collections.length) return [];
+    return collections.filter(c => product.collectionIds?.includes(c.id!));
+  };
+
   if (loading) {
     return (
-      <div className="container py-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-24 mb-8" />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="aspect-[3/4] bg-gray-200 rounded-lg" />
-            <div className="space-y-4">
-              <div className="h-8 bg-gray-200 rounded w-3/4" />
-              <div className="h-6 bg-gray-200 rounded w-1/2" />
-              <div className="h-24 bg-gray-200 rounded" />
-            </div>
-          </div>
-        </div>
+      <div className="container py-12 flex justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="container py-16 text-center">
-        <h1 className="text-2xl font-semibold mb-4">Товар не найден</h1>
-        <button onClick={() => router.back()} className="btn-primary">
-          Вернуться назад
-        </button>
+      <div className="container py-12 text-center">
+        <p className="text-gray-500">Товар не найден</p>
+        <Link href="/catalog" className="text-primary hover:underline mt-4 inline-block">
+          Вернуться в каталог
+        </Link>
       </div>
     );
   }
@@ -101,155 +138,201 @@ export default function ProductPage({ params }: Props) {
   const discount = product.oldPrice
     ? Math.round((1 - product.price / product.oldPrice) * 100)
     : 0;
-
-  const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  const productProperties = getProductProperties();
+  const productCollections = getProductCollections();
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container py-8">
-        {/* Back button */}
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-text-muted hover:text-text mb-8 transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5" />
-          Назад
-        </button>
+    <div className="container py-8">
+      {/* Breadcrumb */}
+      <button
+        onClick={() => router.back()}
+        className="flex items-center gap-2 text-gray-500 hover:text-primary mb-6 transition-colors"
+      >
+        <ChevronLeft className="w-5 h-5" />
+        {tCommon('back')}
+      </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Images */}
-          <div className="space-y-4">
-            {/* Main Image */}
-            <div className="aspect-[3/4] bg-surface rounded-xl overflow-hidden relative">
-              {product.images[selectedImage] ? (
-                <img
-                  src={product.images[selectedImage]}
-                  alt={localized.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <svg className="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-              )}
-
-              {/* Discount badge */}
-              {discount > 0 && (
-                <span className="absolute top-4 left-4 bg-error text-white px-3 py-1 rounded-full text-sm font-medium">
-                  -{discount}%
-                </span>
-              )}
-            </div>
-
-            {/* Thumbnails */}
-            {product.images.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {product.images.map((img, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`w-20 h-24 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-colors ${
-                      selectedImage === index ? 'border-primary' : 'border-transparent'
-                    }`}
-                  >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
-                  </button>
-                ))}
+      <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+        {/* Images */}
+        <div className="space-y-4">
+          <div className="aspect-[3/4] bg-surface rounded-2xl overflow-hidden relative">
+            {product.images?.[selectedImage] ? (
+              <img
+                src={product.images[selectedImage]}
+                alt={localized?.name || ''}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-300">
+                Нет фото
               </div>
+            )}
+            {discount > 0 && (
+              <span className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                -{discount}%
+              </span>
             )}
           </div>
 
-          {/* Info */}
-          <div className="space-y-6">
-            {/* Name */}
-            <h1 className="text-3xl md:text-4xl font-heading font-semibold text-secondary">
-              {localized.name}
-            </h1>
-
-            {/* Price */}
-            <div className="flex items-center gap-4">
-              <span className="text-3xl font-bold text-secondary">
-                {formatPrice(product.price)}
-              </span>
-              {product.oldPrice && (
-                <span className="text-xl text-text-muted line-through">
-                  {formatPrice(product.oldPrice)}
-                </span>
-              )}
+          {/* Thumbnails */}
+          {product.images && product.images.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {product.images.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedImage(i)}
+                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
+                    selectedImage === i ? 'border-primary' : 'border-transparent'
+                  }`}
+                >
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
             </div>
+          )}
+        </div>
 
-            {/* Stock */}
-            <p className={`font-medium ${product.inStock ? 'text-success' : 'text-error'}`}>
-              {product.inStock ? t('inStock') : t('outOfStock')}
-            </p>
-
-            {/* SKU */}
+        {/* Info */}
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-heading font-bold mb-2">
+              {localized?.name || product.slug}
+            </h1>
             {product.sku && (
-              <p className="text-sm text-text-muted">
+              <p className="text-sm text-gray-400">
                 {t('sku')}: {product.sku}
               </p>
             )}
+          </div>
 
-            {/* Size selector */}
+          {/* Цена скрыта по требованию п.9 */}
+          {/* 
+          <div className="flex items-center gap-4">
+            <span className="text-3xl font-bold text-primary">
+              {formatPrice(product.price)}
+            </span>
+            {product.oldPrice && (
+              <span className="text-xl text-gray-400 line-through">
+                {formatPrice(product.oldPrice)}
+              </span>
+            )}
+          </div>
+          */}
+
+          {/* Stock Status */}
+          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm ${
+            product.inStock ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+          }`}>
+            <span className={`w-2 h-2 rounded-full ${product.inStock ? 'bg-green-500' : 'bg-red-500'}`}></span>
+            {product.inStock ? t('inStock') : t('outOfStock')}
+          </div>
+
+          {/* Description */}
+          {localized?.description && (
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-medium">{t('selectSize')}</span>
-                <button className="text-sm text-primary hover:underline">
-                  {t('sizeGuide')}
-                </button>
-              </div>
+              <h3 className="font-semibold mb-2">{t('description')}</h3>
+              <p className="text-gray-600 leading-relaxed">{localized.description}</p>
+            </div>
+          )}
+
+          {/* Properties - показываем propertyIds (п.22) */}
+          {productProperties.length > 0 && (
+            <div>
+              <h3 className="font-semibold mb-2">Свойства</h3>
               <div className="flex flex-wrap gap-2">
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`w-12 h-12 rounded-lg border-2 font-medium transition-all ${
-                      selectedSize === size
-                        ? 'border-primary bg-primary text-white'
-                        : 'border-border hover:border-primary'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
+                {productProperties.map((prop) => {
+                  const propLocalized = getLocalized(prop, locale);
+                  return (
+                    <span 
+                      key={prop.id} 
+                      className="px-3 py-1 bg-gray-100 rounded-full text-sm"
+                    >
+                      {propLocalized?.label || prop.key}
+                    </span>
+                  );
+                })}
               </div>
             </div>
+          )}
 
-            {/* Actions */}
-            <div className="flex gap-4 pt-4">
+          {/* Collections - показываем collectionIds (п.22) */}
+          {productCollections.length > 0 && (
+            <div>
+              <h3 className="font-semibold mb-2">Коллекции</h3>
+              <div className="flex flex-wrap gap-2">
+                {productCollections.map((col) => {
+                  const colLocalized = getLocalized(col, locale);
+                  return (
+                    <Link 
+                      key={col.id} 
+                      href={`/catalog?collection=${col.slug}`}
+                      className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm hover:bg-primary/20 transition-colors"
+                    >
+                      {colLocalized?.name || col.slug}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Actions - кнопки перемещены вниз (п.19) */}
+          <div className="flex flex-col gap-3 pt-4 border-t mt-6">
+            <button
+              onClick={handleAddToCart}
+              disabled={!product.inStock}
+              className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-medium transition-all ${
+                addedToCart
+                  ? 'bg-green-500 text-white'
+                  : product.inStock
+                    ? 'bg-primary text-white hover:bg-primary-hover'
+                    : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              {addedToCart ? (
+                <>
+                  <Check className="w-5 h-5" />
+                  Добавлено!
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="w-5 h-5" />
+                  {t('addToCart')}
+                </>
+              )}
+            </button>
+
+            <div className="flex gap-3">
+              {/* Wishlist Button - исправлен лайк (п.20) */}
               <button
-                onClick={handleAddToCart}
-                disabled={!product.inStock}
-                className={`flex-1 btn-primary flex items-center justify-center gap-2 py-4 ${
-                  addedToCart ? 'bg-success hover:bg-success' : ''
+                onClick={handleWishlistToggle}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border transition-all ${
+                  isInWishlist
+                    ? 'bg-red-50 border-red-200 text-red-500'
+                    : 'border-gray-200 hover:border-primary hover:text-primary'
                 }`}
               >
-                {addedToCart ? (
-                  <>
-                    <Check className="w-5 h-5" />
-                    Добавлено!
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="w-5 h-5" />
-                    {t('addToCart')}
-                  </>
-                )}
+                <Heart className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} />
+                {isInWishlist ? t('removeFromWishlist') : t('addToWishlist')}
               </button>
-              <button className="w-14 h-14 border-2 border-border rounded-lg flex items-center justify-center hover:border-primary hover:text-primary transition-colors">
-                <Heart className="w-6 h-6" />
+
+              {/* Share Button */}
+              <button
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: localized?.name || product.slug,
+                      url: window.location.href,
+                    });
+                  } else {
+                    navigator.clipboard.writeText(window.location.href);
+                  }
+                }}
+                className="px-4 py-3 rounded-xl border border-gray-200 hover:border-primary hover:text-primary transition-all"
+              >
+                <Share2 className="w-5 h-5" />
               </button>
             </div>
-
-            {/* Description */}
-            {localized.description && (
-              <div className="pt-6 border-t border-border">
-                <h2 className="font-semibold mb-3">{t('description')}</h2>
-                <p className="text-text-muted leading-relaxed">{localized.description}</p>
-              </div>
-            )}
           </div>
         </div>
       </div>

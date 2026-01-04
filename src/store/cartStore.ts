@@ -1,5 +1,3 @@
-'use client';
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -7,41 +5,36 @@ export interface CartItem {
   productId: number;
   name: string;
   price: number;
-  image: string;
+  image?: string;
   quantity: number;
   size?: string;
   color?: string;
+  // Добавлено для п.22
+  propertyIds?: number[];
+  collectionIds?: number[];
 }
 
 interface CartStore {
   items: CartItem[];
-  isOpen: boolean;
-  
-  // Actions
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
   removeItem: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
-  toggleCart: () => void;
-  
-  // Getters
   getTotal: () => number;
-  getItemsCount: () => number;
 }
 
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
-      isOpen: false,
 
       addItem: (item) => {
         set((state) => {
-          const existingItem = state.items.find(
+          const existing = state.items.find(
             (i) => i.productId === item.productId && i.size === item.size && i.color === item.color
           );
 
-          if (existingItem) {
+          if (existing) {
             return {
               items: state.items.map((i) =>
                 i.productId === item.productId && i.size === item.size && i.color === item.color
@@ -64,28 +57,18 @@ export const useCartStore = create<CartStore>()(
       },
 
       updateQuantity: (productId, quantity) => {
-        if (quantity <= 0) {
-          get().removeItem(productId);
-          return;
-        }
-        
         set((state) => ({
           items: state.items.map((i) =>
-            i.productId === productId ? { ...i, quantity } : i
-          ),
+            i.productId === productId ? { ...i, quantity: Math.max(0, quantity) } : i
+          ).filter((i) => i.quantity > 0),
         }));
       },
 
       clearCart: () => set({ items: [] }),
 
-      toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
-
       getTotal: () => {
-        return get().items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      },
-
-      getItemsCount: () => {
-        return get().items.reduce((sum, item) => sum + item.quantity, 0);
+        const { items } = get();
+        return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
       },
     }),
     {

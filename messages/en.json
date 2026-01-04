@@ -150,6 +150,8 @@
 	},
 	
 "admin": {
+	    "image": "Image",
+
   "title": "Admin Panel",
   "onSite": "To site",
   "logout": "Logout",

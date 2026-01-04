@@ -1,42 +1,168 @@
-// 'use client';
+'use client';
 
-// import { useTranslations } from 'next-intl';
-// import { Link } from '@/i18n/navigation';
-// import { ArrowRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
+import { Link } from '@/i18n/navigation';
+import { productsAPI } from '@/lib/api';
+import { Product, getLocalized } from '@/types/api';
+import { Locale } from '@/config/api.config';
+import { ArrowRight, ShoppingCart, Heart } from 'lucide-react';
+import { useCartStore } from '@/store/cartStore';
+import { useWishlistStore } from '@/store/wishlistStore';
 
-// export function HeroBanner() {
-//   const t = useTranslations('home.hero');
+export function FeaturedProducts() {
+  const t = useTranslations('home.featured');
+  const tProduct = useTranslations('product');
+  const locale = useLocale() as Locale;
+  
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  const { addItem: addToCart } = useCartStore();
+  const { items: wishlistItems, addItem: addToWishlist, removeItem: removeFromWishlist } = useWishlistStore();
 
-//   return (
-//     <section className="relative bg-gradient-to-br from-[#FBF9F9] via-[#FAF0F0] to-[#F5E6E6] overflow-hidden">
-//       {/* Decorative elements */}
-//       <div className="absolute top-20 left-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
-//       <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-      
-//       {/* Pattern overlay */}
-//       <div className="absolute inset-0 opacity-5">
-//         <div className="absolute inset-0" style={{
-//           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4A5A5' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-//         }} />
-//       </div>
+  useEffect(() => {
+    productsAPI.getAll()
+      .then(data => setProducts(data.slice(0, 8)))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
-//       <div className="container relative">
-//         <div className="py-24 md:py-32 lg:py-40 text-center max-w-3xl mx-auto">
-//           <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-semibold text-secondary mb-6 leading-tight">
-//             {t('title')}
-//           </h1>
-//           <p className="text-lg md:text-xl text-text-muted mb-10 leading-relaxed">
-//             {t('subtitle')}
-//           </p>
-//           <Link
-//             href="/catalog"
-//             className="btn-primary inline-flex items-center gap-3 px-8 py-4 text-lg bg-secondary text-white hover:bg-secondary-hover"
-//           >
-//             {t('cta')}
-//             <ArrowRight className="w-5 h-5" />
-//           </Link>
-//         </div>
-//       </div>
-//     </section>
-//   );
-// }
+  const isInWishlist = (productId: number) => {
+    return wishlistItems.some(item => item.productId === productId);
+  };
+
+  const handleWishlistToggle = (product: Product) => {
+    const loc = getLocalized(product, locale);
+    if (isInWishlist(product.id!)) {
+      removeFromWishlist(product.id!);
+    } else {
+      addToWishlist({
+        productId: product.id!,
+        name: loc?.name || 'Товар',
+        price: product.price,
+        image: product.images?.[0] || '',
+      });
+    }
+  };
+
+  const handleAddToCart = (product: Product) => {
+    const loc = getLocalized(product, locale);
+    addToCart({
+      productId: product.id!,
+      name: loc?.name || 'Товар',
+      price: product.price,
+      image: product.images?.[0] || '',
+      propertyIds: product.propertyIds,
+      collectionIds: product.collectionIds,
+    });
+  };
+
+  if (loading) {
+    return (
+      <section className="section">
+        <div className="container">
+          <h2 className="section-title">{t('title')}</h2>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="aspect-[3/4] bg-gray-100 rounded-xl animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="section">
+      <div className="container">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="section-title mb-0">{t('title')}</h2>
+          <Link
+            href="/catalog"
+            className="hidden sm:flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-hover transition-colors"
+          >
+            {t('viewAll')}
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          {products.map((product) => {
+            const loc = getLocalized(product, locale);
+            const inWishlist = isInWishlist(product.id!);
+
+            return (
+              <div key={product.id} className="group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                {/* Wishlist Button */}
+                <button
+                  onClick={() => handleWishlistToggle(product)}
+                  className={`absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                    inWishlist
+                      ? 'bg-red-500 text-white'
+                      : 'bg-white/80 text-gray-500 hover:text-red-500'
+                  }`}
+                >
+                  <Heart className={`w-5 h-5 ${inWishlist ? 'fill-current' : ''}`} />
+                </button>
+
+                {/* Image */}
+                <Link href={`/catalog/${product.slug}`}>
+                  <div className="aspect-[3/4] bg-surface relative overflow-hidden">
+                    {product.images?.[0] ? (
+                      <img
+                        src={product.images[0]}
+                        alt={loc?.name || ''}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-300">
+                        Нет фото
+                      </div>
+                    )}
+                  </div>
+                </Link>
+
+                {/* Info */}
+                <div className="p-4">
+                  <Link href={`/catalog/${product.slug}`}>
+                    <h3 className="font-medium text-sm mb-2 line-clamp-2 hover:text-primary transition-colors">
+                      {loc?.name || product.slug}
+                    </h3>
+                  </Link>
+
+                  {/* Цена скрыта по требованию п.9 */}
+                  {/* 
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="font-bold text-primary">{product.price.toLocaleString()} UZS</span>
+                  </div>
+                  */}
+
+                  {/* Add to Cart Button - внизу карточки (п.19) */}
+                  <button
+                    onClick={() => handleAddToCart(product)}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-hover transition-colors"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    {tProduct('addToCart')}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Mobile View All */}
+        <div className="mt-8 text-center sm:hidden">
+          <Link
+            href="/catalog"
+            className="btn-outline inline-flex items-center gap-2"
+          >
+            {t('viewAll')}
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}

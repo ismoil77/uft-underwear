@@ -1,3 +1,4 @@
+import { siteConfig } from '@/config';
 import { API_URL } from '@/config/api.config';
 import { Product, Category, Order, Property, TeamMember, Collection, AboutCompany, SocialMedia, Season, PolicyPrivacy } from '@/types/api';
 
@@ -22,17 +23,92 @@ function createCRUD<T extends { id?: number }>(resource: string) {
 
 export const productsAPI = {
   ...createCRUD<Product>('products'),
- getBySlug: async (slug: string) => {
-  const data = await fetchAPI<Product[]>(`/products?slug=${slug}`);
-  return data[0] || null;
-},
+  
+  getBySlug: async (slug: string): Promise<Product | null> => {
+    try {
+      const data = await fetchAPI<Product[]>(`/products?slug=${slug}`);
+      return data[0] || null;
+    } catch (error) {
+      console.error('Error fetching product by slug:', error);
+      return null;
+    }
+  },
+  
+  getById: async (id: number): Promise<Product | null> => {
+    try {
+      const data = await fetchAPI<Product>(`/products/${id}`);
+      return data || null;
+    } catch (error) {
+      console.error('Error fetching product by id:', error);
+      return null;
+    }
+  },
+  
+  getByCollection: async (collectionId: number): Promise<Product[]> => {
+    try {
+      const allProducts = await fetchAPI<Product[]>('/products');
+      return allProducts.filter(p => p.collectionIds?.includes(collectionId));
+    } catch (error) {
+      console.error('Error fetching products by collection:', error);
+      return [];
+    }
+  },
+  
+  getByCategory: async (categoryId: number): Promise<Product[]> => {
+    try {
+      const data = await fetchAPI<Product[]>(`/products?categoryId=${categoryId}`);
+      return data;
+    } catch (error) {
+      console.error('Error fetching products by category:', error);
+      return [];
+    }
+  },
 };
 
 export const categoriesAPI = createCRUD<Category>('category');
-export const ordersAPI = createCRUD<Order>('orders');
+
+export const ordersAPI = {
+  ...createCRUD<Order>('orders'),
+  
+  cleanOldOrders: async (daysOld: number = 30): Promise<void> => {
+    try {
+      const orders = await fetchAPI<Order[]>('/orders');
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - daysOld);
+      
+      const oldOrders = orders.filter(order => {
+        if (!order.createdAt) return false;
+        return new Date(order.createdAt) < cutoffDate;
+      });
+      
+      if (oldOrders.length > 0) {
+        const existingBackup = localStorage.getItem('ordersBackup');
+        const backup = existingBackup ? JSON.parse(existingBackup) : [];
+        backup.push(...oldOrders);
+        localStorage.setItem('ordersBackup', JSON.stringify(backup));
+        
+        for (const order of oldOrders) {
+          if (order.id) {
+            await fetchAPI<void>(`/orders/${order.id}`, { method: 'DELETE' });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error cleaning old orders:', error);
+    }
+  },
+};
+
 export const propertiesAPI = createCRUD<Property>('property');
 export const teamAPI = createCRUD<TeamMember>('ourComand');
-export const collectionsAPI = createCRUD<Collection>('collection');
+
+export const collectionsAPI = {
+  ...createCRUD<Collection>('collection'),
+  
+  getProducts: async (collectionId: number): Promise<Product[]> => {
+    return productsAPI.getByCollection(collectionId);
+  },
+};
 
 export const aboutCompanyAPI = {
   get: () => fetchAPI<AboutCompany[]>('/aboutcompany').then(data => data[0] || null),
@@ -57,3 +133,202 @@ export const policyAPI = {
   update: (id: number, data: PolicyPrivacy) => fetchAPI<PolicyPrivacy>(`/policyPrivacy/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   create: (data: PolicyPrivacy) => fetchAPI<PolicyPrivacy>('/policyPrivacy', { method: 'POST', body: JSON.stringify(data) }),
 };
+
+// ============ TELEGRAM ============
+
+// ============ TELEGRAM ============
+
+// Хелпер для форматирования цены
+const formatPrice = (price: number): string => {
+  const formatted = new Intl.NumberFormat('ru-RU').format(price);
+  return siteConfig.currency.position === 'before'
+    ? `${siteConfig.currency.symbol}${formatted}`
+    : `${formatted} ${siteConfig.currency.symbol}`;
+};
+
+// Базовая функция отправки в Telegram через API Route (чтобы обойти CORS)
+export const sendTelegramNotification = async (message: string): Promise<boolean> => {
+  try {
+    console.log('sendTelegramNotification called, message length:', message.length);
+    
+    // Отправляем через наш API route, а не напрямую в Telegram (CORS!)
+    const response = await fetch('/api/telegram', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message }),
+    });
+    
+    const result = await response.json();
+    console.log('Telegram API response:', result);
+    
+    if (!response.ok) {
+      console.error('Telegram send failed:', result);
+      return false;
+    }
+    
+    return result.success === true;
+  } catch (error) {
+    console.error('Error sending Telegram notification:', error);
+    return false;
+  }
+};
+
+// Отправка нового заказа в Telegram с накладной
+export const sendOrderToTelegram = async (order: Order): Promise<boolean> => {
+  console.log('sendOrderToTelegram called:', order);
+  
+  // Генерируем накладную для нового заказа
+  const invoice = generateInvoiceText(
+    order.id || 0, 
+    '🆕 Новый заказ', 
+    order
+  );
+  
+  return sendTelegramNotification(invoice);
+};
+
+// Отправка фото в Telegram (для накладной)
+export const sendTelegramPhoto = async (photoUrl: string, caption: string): Promise<boolean> => {
+  try {
+    console.log('sendTelegramPhoto called, photo:', photoUrl);
+    
+    const response = await fetch('/api/telegram', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ photo: photoUrl, caption }),
+    });
+    
+    const result = await response.json();
+    console.log('Telegram photo response:', result);
+    
+    return result.success === true;
+  } catch (error) {
+    console.error('Error sending Telegram photo:', error);
+    return false;
+  }
+};
+
+// Генерация текстовой накладной для Telegram
+const generateInvoiceText = (
+  orderId: number,
+  status: string,
+  order: Order
+): string => {
+  const date = new Date().toLocaleDateString('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  
+  // Шапка накладной
+  let invoice = `
+━━━━━━━━━━━━━━━━━━━━━━
+📄 <b>НАКЛАДНАЯ № ${orderId}</b>
+━━━━━━━━━━━━━━━━━━━━━━
+
+📅 <b>Дата:</b> ${date}
+🏷 <b>Статус:</b> ${status}
+
+👤 <b>Покупатель:</b> ${order.name}
+📱 <b>Телефон:</b> ${order.phone}`;
+
+  if (order.address) {
+    invoice += `\n📍 <b>Адрес:</b> ${order.address}`;
+  }
+
+  // Таблица товаров
+  invoice += `\n
+━━━━━━━━━━━━━━━━━━━━━━
+📦 <b>ТОВАРЫ</b>
+━━━━━━━━━━━━━━━━━━━━━━
+`;
+
+  let totalQty = 0;
+  order.items?.forEach((item, index) => {
+    const itemTotal = item.price * item.quantity;
+    totalQty += item.quantity;
+    invoice += `
+${index + 1}. ${item.name}
+   ${item.quantity} шт × ${formatPrice(item.price)} = <b>${formatPrice(itemTotal)}</b>
+`;
+  });
+
+  // Итоги
+  invoice += `
+━━━━━━━━━━━━━━━━━━━━━━
+📊 <b>ИТОГО</b>
+━━━━━━━━━━━━━━━━━━━━━━
+
+📦 Товаров: <b>${totalQty} шт</b>
+💰 К оплате: <b>${formatPrice(order.total)}</b>`;
+
+  if (order.comment) {
+    invoice += `\n\n💬 <i>${order.comment}</i>`;
+  }
+
+  invoice += `\n
+━━━━━━━━━━━━━━━━━━━━━━`;
+
+  return invoice.trim();
+};
+
+// Отправка уведомления о смене статуса в Telegram с накладной
+export const sendStatusChangeToTelegram = async (
+  orderId: number,
+  newStatus: Order['status'],
+  order: Order
+): Promise<boolean> => {
+  const statusLabels: Record<Order['status'], string> = {
+    new: '🆕 Новый',
+    viewed: '👁️ Просмотрен',
+    called: '📞 Позвонили',
+    processing: '⚙️ В обработке',
+    shipped: '📦 Отправлен',
+    delivered: '🚚 Доставлен',
+    completed: '✅ Выполнен',
+    cancelled: '❌ Отменён',
+  };
+  
+  // Генерируем красивую накладную
+  const invoice = generateInvoiceText(orderId, statusLabels[newStatus], order);
+  
+  return sendTelegramNotification(invoice);
+};
+
+// Обновление статуса заказа с уведомлением в Telegram
+export const updateOrderStatusWithNotification = async (
+  orderId: number,
+  newStatus: Order['status'],
+  order: Order
+): Promise<Order | null> => {
+  try {
+    console.log('updateOrderStatusWithNotification:', { orderId, newStatus });
+    
+    // Обновляем статус в базе
+    const updatedOrder = await ordersAPI.update(orderId, { 
+      status: newStatus,
+      updatedAt: new Date().toISOString(),
+    });
+    
+    // Отправляем уведомление в Telegram
+    await sendStatusChangeToTelegram(orderId, newStatus, order);
+    
+    return updatedOrder;
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    return null;
+  }
+};
+
+
+
+
+
+
+
+
+
+
+

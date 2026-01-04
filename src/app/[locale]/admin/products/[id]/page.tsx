@@ -4,9 +4,15 @@ import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import { productsAPI, categoriesAPI, propertiesAPI, collectionsAPI } from '@/lib/api';
-import { Product, Category, Property, getLocalized } from '@/types/api';
-import { ChevronLeft, Save, Loader2, Plus, Trash2 } from 'lucide-react';
+import { Product, Category, Property, Collection, getLocalized } from '@/types/api';
+import { ChevronLeft, Save, Loader2, Plus, Trash2, EyeOff } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
+
+type LocalizedContent = {
+  label?: string;
+  name?: string;
+  description?: string;
+};
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -27,7 +33,8 @@ export default function AdminProductEditPage({ params }: Props) {
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
-const [collections, setCollections] = useState<Category[]>([]);
+  const [collections, setCollections] = useState<Collection[]>([]);
+  
   const [form, setForm] = useState({
     slug: '',
     categoryId: 0,
@@ -35,65 +42,66 @@ const [collections, setCollections] = useState<Category[]>([]);
     oldPrice: 0,
     images: [''],
     inStock: true,
+    hidePrice: false, // Новое поле для скрытия цены
     sku: '',
-    propertyIds: [] as number[], // <- добавлено поле для выбранных свойств
-    collectionIds:[] as number[],
+    propertyIds: [] as number[],
+    collectionIds: [] as number[],
     ru: { name: '', description: '' },
     en: { name: '', description: '' },
     uz: { name: '', description: '' },
     tj: { name: '', description: '' },
   });
 
-  // Получение категорий и свойств
- useEffect(() => {
-  async function fetchData() {
-    try {
-      const [props, cols] = await Promise.all([
-        propertiesAPI.getAll(),
-        collectionsAPI.getAll(), // отдельный запрос коллекций
-      ]);
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [cats, props, cols] = await Promise.all([
+          categoriesAPI.getAll(),
+          propertiesAPI.getAll(),
+          collectionsAPI.getAll(),
+        ]);
 
-      setProperties(props);
-      setCollections(cols);
+        setCategories(cats);
+        setProperties(props);
+        setCollections(cols);
 
-      if (!isNew) {
-        const product = await productsAPI.getById(parseInt(id));
-        if (product) {
-          setForm({
-            slug: product.slug || '',
-            categoryId: product.categoryId || 0,
-            price: product.price || 0,
-            oldPrice: product.oldPrice || 0,
-            images: product.images?.length ? product.images : [''],
-            inStock: product.inStock ?? true,
-            sku: product.sku || '',
-            propertyIds: product.properties || [],
-            collectionIds: product.collectionIds || [], // <- выбранные коллекции
-            ru: product.ru || { name: '', description: '' },
-            en: product.en || { name: '', description: '' },
-            uz: product.uz || { name: '', description: '' },
-            tj: product.tj || { name: '', description: '' },
-          });
+        if (!isNew) {
+          const product = await productsAPI.getById(parseInt(id));
+          if (product) {
+            setForm({
+              slug: product.slug || '',
+              categoryId: product.categoryId || 0,
+              price: product.price || 0,
+              oldPrice: product.oldPrice || 0,
+              images: product.images?.length ? product.images : [''],
+              inStock: product.inStock ?? true,
+              hidePrice: product.hidePrice ?? false, // Загружаем значение
+              sku: product.sku || '',
+              propertyIds: product.propertyIds || product.properties || [],
+              collectionIds: product.collectionIds || [],
+              ru: product.ru || { name: '', description: '' },
+              en: product.en || { name: '', description: '' },
+              uz: product.uz || { name: '', description: '' },
+              tj: product.tj || { name: '', description: '' },
+            });
+          }
         }
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
     }
-  }
-  fetchData();
-}, [id, isNew]);
+    fetchData();
+  }, [id, isNew]);
 
-  // Обновление локализации
   const updateLocale = (loc: string, field: string, value: string) => {
     setForm((prev) => ({
       ...prev,
-      [loc]: { ...prev[loc as keyof typeof prev] as any, [field]: value },
+      [loc]: { ...(prev[loc as keyof typeof prev] as any), [field]: value },
     }));
   };
 
-  // Отправка формы
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -102,7 +110,7 @@ const [collections, setCollections] = useState<Category[]>([]);
       const data = {
         ...form,
         images: form.images.filter((img) => img.trim() !== ''),
-        properties: form.propertyIds, // <- сохраняем только ID
+        properties: form.propertyIds,
       };
 
       if (isNew) {
@@ -220,111 +228,129 @@ const [collections, setCollections] = useState<Category[]>([]);
                 />
               </div>
 
-              <div className="flex items-center gap-3 p-2">
-                <input
-                  type="checkbox"
-                  id="inStock"
-                  checked={form.inStock}
-                  onChange={(e) => setForm({ ...form, inStock: e.target.checked })}
-                  className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                />
-                <label htmlFor="inStock" className="text-sm font-bold text-gray-700 cursor-pointer select-none">
-                  {tProduct('inStock')}
-                </label>
+              {/* Чекбоксы в одной строке */}
+              <div className="md:col-span-2 flex flex-wrap gap-6">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="inStock"
+                    checked={form.inStock}
+                    onChange={(e) => setForm({ ...form, inStock: e.target.checked })}
+                    className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                  <label htmlFor="inStock" className="text-sm font-bold text-gray-700 cursor-pointer select-none">
+                    {tProduct('inStock')}
+                  </label>
+                </div>
+
+                {/* Новое поле: Скрыть цену */}
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="hidePrice"
+                    checked={form.hidePrice}
+                    onChange={(e) => setForm({ ...form, hidePrice: e.target.checked })}
+                    className="w-5 h-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                  />
+                  <label htmlFor="hidePrice" className="text-sm font-bold text-gray-700 cursor-pointer select-none flex items-center gap-1.5">
+                    <EyeOff className="w-4 h-4 text-orange-500" />
+                    Скрыть цену
+                  </label>
+                </div>
               </div>
             </div>
           </div>
 
-        
-       {/* Properties selection */}
-<div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-  <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800">
-    <span className="w-1.5 h-5 bg-green-600 rounded-full"></span>
-    {tAdmin('properties')}
-  </h2>
+          {/* Properties selection */}
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800">
+              <span className="w-1.5 h-5 bg-green-600 rounded-full"></span>
+              {tAdmin('properties')}
+            </h2>
 
-  <div className="flex flex-wrap gap-2">
-    {properties.map((prop) => {
-      // гарантируем, что propertyIds — массив чисел
-      const propertyIds = Array.isArray(form.propertyIds) ? form.propertyIds : [];
-      const selected = propertyIds.includes(prop.id);
+            <div className="flex flex-wrap gap-2">
+              {properties.map((prop) => {
+                const propertyIds = Array.isArray(form.propertyIds) ? form.propertyIds : [];
+                const selected = prop.id ? propertyIds.includes(prop.id) : false;
 
-      // локализованный label
-      const label =
-        (prop[locale as keyof typeof prop] as LocalizedContent)?.label ||
-        prop.ru?.label ||
-        prop.key;
+                const label =
+                  (prop[locale as keyof typeof prop] as LocalizedContent)?.label ||
+                  prop.ru?.label ||
+                  prop.key;
 
-      return (
-        <button
-          key={prop.id}
-          type="button"
-          onClick={() => {
-            setForm((prev) => {
-              const currentIds = Array.isArray(prev.propertyIds) ? prev.propertyIds : [];
-              if (typeof prop.id !== "number") return prev;
+                return (
+                  <button
+                    key={prop.id}
+                    type="button"
+                    onClick={() => {
+                      setForm((prev) => {
+                        const currentIds = Array.isArray(prev.propertyIds) ? prev.propertyIds : [];
+                        if (typeof prop.id !== 'number') return prev;
 
-              return {
-                ...prev,
-                propertyIds: selected
-                  ? currentIds.filter((id) => id !== prop.id)
-                  : [...currentIds, prop.id], // безопасно только number
-              };
-            });
-          }}
-          className={`px-3 py-1 rounded border ${
-            selected ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-        >
-          {label}
-        </button>
-      );
-    })}
-  </div>
-</div>
-{/*  COllection */}
-<div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-  <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800">
-    <span className="w-1.5 h-5 bg-purple-600 rounded-full"></span>
-    {tAdmin('collections')}
-  </h2>
+                        return {
+                          ...prev,
+                          propertyIds: selected
+                            ? currentIds.filter((id) => id !== prop.id)
+                            : [...currentIds, prop.id],
+                        };
+                      });
+                    }}
+                    className={`px-3 py-1.5 rounded-lg border transition-all ${
+                      selected 
+                        ? 'bg-green-500 text-white border-green-500' 
+                        : 'bg-gray-100 border-gray-200 hover:border-green-300'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-  <div className="flex flex-wrap gap-2">
-    {collections.map((col) => {
-      const selected = form.collectionIds.includes(col.id);
+          {/* Collections */}
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800">
+              <span className="w-1.5 h-5 bg-purple-600 rounded-full"></span>
+              {tAdmin('collections')}
+            </h2>
 
-      return (
-        <button
-          key={col.id}
-          type="button"
-          onClick={() =>
-            setForm((prev) => ({
-              ...prev,
-              collectionIds: selected
-                ? prev.collectionIds.filter((id) => id !== col.id)
-                : [...prev.collectionIds, col.id],
-            }))
-          }
-          className={`flex items-center gap-2 px-3 py-1 rounded border ${
-            selected ? 'bg-purple-500 text-white' : 'bg-gray-200'
-          }`}
-        >
-          {/* Картинка коллекции */}
-          {col.image && (
-            <img
-              src={col.image}
-              alt={col.ru.name}
-              className="w-6 h-6 object-cover rounded"
-            />
-          )}
-          {/* Название на русском */}
-          <span>{col.ru.name}</span>
-        </button>
-      );
-    })}
-  </div>
-</div>
+            <div className="flex flex-wrap gap-2">
+              {collections.map((col) => {
+                const selected = col.id ? form.collectionIds.includes(col.id) : false;
+                const colLocalized = getLocalized(col, locale as any);
 
+                return (
+                  <button
+                    key={col.id}
+                    type="button"
+                    onClick={() =>
+                      setForm((prev) => ({
+                        ...prev,
+                        collectionIds: selected
+                          ? prev.collectionIds.filter((id) => id !== col.id)
+                          : [...prev.collectionIds, col.id!],
+                      }))
+                    }
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all ${
+                      selected 
+                        ? 'bg-purple-500 text-white border-purple-500' 
+                        : 'bg-gray-100 border-gray-200 hover:border-purple-300'
+                    }`}
+                  >
+                    {col.image && (
+                      <img
+                        src={col.image}
+                        alt=""
+                        className="w-6 h-6 object-cover rounded"
+                      />
+                    )}
+                    <span>{colLocalized?.name || col.slug}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Images */}
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">

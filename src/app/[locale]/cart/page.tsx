@@ -1,22 +1,31 @@
 'use client';
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useState, useEffect } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useCartStore } from '@/store/cartStore';
-import { ordersAPI, sendToTelegram } from '@/lib/api';
+import { ordersAPI, propertiesAPI, collectionsAPI, sendTelegramNotification } from '@/lib/api';
+import { Property, Collection, getLocalized } from '@/types/api';
+import { Locale } from '@/config/api.config';
 import { siteConfig } from '@/config';
-import { Trash2, Minus, Plus, ShoppingBag, CheckCircle } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, CheckCircle, Tag, Layers } from 'lucide-react';
 
 export default function CartPage() {
   const t = useTranslations('cart');
   const tCheckout = useTranslations('checkout');
+  const locale = useLocale() as Locale;
+  
   const { items, removeItem, updateQuantity, clearCart, getTotal } = useCartStore();
   
   const [step, setStep] = useState<'cart' | 'checkout' | 'success'>('cart');
   const [loading, setLoading] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
+  const [mounted, setMounted] = useState(false);
   
+  // Для отображения свойств и коллекций (п.22)
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [collections, setCollections] = useState<Collection[]>([]);
+
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -25,11 +34,64 @@ export default function CartPage() {
     comment: '',
   });
 
+  useEffect(() => {
+    setMounted(true);
+    
+    // Загружаем свойства и коллекции для отображения
+    Promise.all([
+      propertiesAPI.getAll(),
+      collectionsAPI.getAll(),
+    ]).then(([props, cols]) => {
+      setProperties(props);
+      setCollections(cols);
+    }).catch(() => {});
+  }, []);
+
   const formatPrice = (price: number) => {
     const formatted = new Intl.NumberFormat('ru-RU').format(price);
     return siteConfig.currency.position === 'before'
       ? `${siteConfig.currency.symbol}${formatted}`
       : `${formatted} ${siteConfig.currency.symbol}`;
+  };
+
+  // Получить названия свойств по ID (п.22)
+  const getPropertyNames = (propertyIds?: number[]) => {
+    if (!propertyIds || !properties.length) return [];
+    return properties
+      .filter(p => propertyIds.includes(p.id!))
+      .map(p => getLocalized(p, locale)?.label || p.key);
+  };
+
+  // Получить названия коллекций по ID (п.22)
+  const getCollectionNames = (collectionIds?: number[]) => {
+    if (!collectionIds || !collections.length) return [];
+    return collections
+      .filter(c => collectionIds.includes(c.id!))
+      .map(c => getLocalized(c, locale)?.name || c.slug);
+  };
+
+  const sendToTelegram = async (order: any) => {
+    const itemsList = order.items
+      .map((item: any) => `• ${item.name} x${item.quantity} = ${formatPrice(item.price * item.quantity)}`)
+      .join('\n');
+
+    const message = `
+🛒 <b>Новый заказ!</b>
+
+👤 <b>Клиент:</b> ${order.name}
+📱 <b>Телефон:</b> ${order.phone}
+${order.email ? `📧 <b>Email:</b> ${order.email}` : ''}
+${order.address ? `📍 <b>Адрес:</b> ${order.address}` : ''}
+📝 <b>Статус:</b> ${order.status}
+📦 <b>Товары:</b>
+${itemsList}
+
+💰 <b>Итого:</b> ${formatPrice(order.total)}
+
+${order.comment ? `💬 <b>Комментарий:</b> ${order.comment}` : ''}
+    `.trim();
+
+    await sendTelegramNotification(message);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,17 +106,19 @@ export default function CartPage() {
           name: item.name,
           price: item.price,
           quantity: item.quantity,
+          image: item.image,
           size: item.size,
           color: item.color,
+          // Сохраняем propertyIds и collectionIds (п.22)
+          propertyIds: item.propertyIds,
+          collectionIds: item.collectionIds,
         })),
         total: getTotal(),
         status: 'new' as const,
+        createdAt: new Date().toISOString(),
       };
 
-      // Сохраняем заказ в API
       const savedOrder = await ordersAPI.create(order);
-      
-      // Отправляем в Telegram
       await sendToTelegram(order);
 
       setOrderNumber(savedOrder.id?.toString() || Date.now().toString());
@@ -67,6 +131,8 @@ export default function CartPage() {
       setLoading(false);
     }
   };
+
+  if (!mounted) return null;
 
   // Пустая корзина
   if (items.length === 0 && step !== 'success') {
@@ -110,149 +176,150 @@ export default function CartPage() {
           {/* Main content */}
           <div className="lg:col-span-2">
             {step === 'cart' ? (
-              /* Cart items */
               <div className="space-y-4">
-                {items.map((item) => (
-                  <div
-                    key={`${item.productId}-${item.size}`}
-                    className="card p-4 flex gap-4"
-                  >
-                    {/* Image */}
-                    <div className="w-24 h-32 bg-surface rounded-lg overflow-hidden flex-shrink-0">
-                      {item.image ? (
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <ShoppingBag className="w-8 h-8" />
+                {items.map((item) => {
+                  const propNames = getPropertyNames(item.propertyIds);
+                  const colNames = getCollectionNames(item.collectionIds);
+                  
+                  return (
+                    <div key={`${item.productId}-${item.size}`} className="bg-white rounded-xl p-4 shadow-sm flex gap-4">
+                      <div className="w-24 h-24 bg-surface rounded-lg overflow-hidden flex-shrink-0">
+                        {item.image ? (
+                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-300">📦</div>
+                        )}
+                      </div>
+                      
+                      <div className="flex-1">
+                        <h3 className="font-medium mb-1">{item.name}</h3>
+                        
+                        {/* Размер и цвет */}
+                        {(item.size || item.color) && (
+                          <p className="text-sm text-gray-500 mb-1">
+                            {item.size && <span>Размер: {item.size}</span>}
+                            {item.size && item.color && ' • '}
+                            {item.color && <span>Цвет: {item.color}</span>}
+                          </p>
+                        )}
+                        
+                        {/* Свойства товара (п.22) */}
+                        {propNames.length > 0 && (
+                          <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
+                            <Tag className="w-3 h-3" />
+                            <span>{propNames.join(', ')}</span>
+                          </div>
+                        )}
+                        
+                        {/* Коллекции товара (п.22) */}
+                        {colNames.length > 0 && (
+                          <div className="flex items-center gap-1 text-xs text-primary mb-1">
+                            <Layers className="w-3 h-3" />
+                            <span>{colNames.join(', ')}</span>
+                          </div>
+                        )}
+                        
+                        {/* Цена скрыта по требованию п.9 */}
+                        {/* <p className="text-primary font-semibold">{formatPrice(item.price)}</p> */}
+                        
+                        <div className="flex items-center gap-3 mt-2">
+                          <div className="flex items-center border rounded-lg">
+                            <button
+                              onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                              className="p-2 hover:bg-gray-100"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </button>
+                            <span className="px-4 font-medium">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                              className="p-2 hover:bg-gray-100"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                          </div>
+                          
+                          <button
+                            onClick={() => removeItem(item.productId)}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
                         </div>
-                      )}
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-secondary line-clamp-2 mb-1">
-                        {item.name}
-                      </h3>
-                      {item.size && (
-                        <p className="text-sm text-text-muted mb-2">
-                          Размер: {item.size}
-                        </p>
-                      )}
-                      <p className="font-semibold text-lg">
-                        {formatPrice(item.price)}
-                      </p>
-                    </div>
-
-                    {/* Quantity & Remove */}
-                    <div className="flex flex-col items-end justify-between">
-                      <button
-                        onClick={() => removeItem(item.productId)}
-                        className="text-text-muted hover:text-error transition-colors"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                          className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:border-primary transition-colors"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="w-8 text-center font-medium">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                          className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:border-primary transition-colors"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
+
+                <div className="flex justify-between items-center pt-4">
+                  <button onClick={clearCart} className="text-red-500 hover:text-red-600 text-sm">
+                    {t('clear')}
+                  </button>
+                  <Link href="/catalog" className="text-primary hover:underline text-sm">
+                    {t('continueShopping')}
+                  </Link>
+                </div>
               </div>
             ) : (
-              /* Checkout form */
-              <form onSubmit={handleSubmit} className="card p-6 space-y-6">
-                <h2 className="text-xl font-semibold">{tCheckout('contactInfo')}</h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      {tCheckout('name')} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="input"
-                      placeholder="Ваше имя"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      {tCheckout('phone')} *
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      className="input"
-                      placeholder="+7 (999) 999-99-99"
-                    />
-                  </div>
-                </div>
-
+              // Checkout Form
+              <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 shadow-sm space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    {tCheckout('email')}
-                  </label>
+                  <label className="block text-sm font-medium mb-1">{tCheckout('name')} *</label>
+                  <input
+                    type="text"
+                    required
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 outline-none"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1">{tCheckout('phone')} *</label>
+                  <input
+                    type="tel"
+                    required
+                    value={form.phone}
+                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 outline-none"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1">{tCheckout('email')}</label>
                   <input
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="input"
-                    placeholder="email@example.com"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 outline-none"
                   />
                 </div>
-
+                
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    {tCheckout('address')}
-                  </label>
-                  <input
-                    type="text"
+                  <label className="block text-sm font-medium mb-1">{tCheckout('address')}</label>
+                  <textarea
                     value={form.address}
                     onChange={(e) => setForm({ ...form, address: e.target.value })}
-                    className="input"
-                    placeholder="Город, улица, дом, квартира"
+                    rows={2}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 outline-none"
                   />
                 </div>
-
+                
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    {tCheckout('comment')}
-                  </label>
+                  <label className="block text-sm font-medium mb-1">{tCheckout('comment')}</label>
                   <textarea
                     value={form.comment}
                     onChange={(e) => setForm({ ...form, comment: e.target.value })}
-                    className="input min-h-[100px]"
                     placeholder={tCheckout('commentPlaceholder')}
+                    rows={3}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 outline-none"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full btn-primary py-4 text-lg"
+                  className="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-hover disabled:opacity-50"
                 >
                   {loading ? 'Оформление...' : tCheckout('placeOrder')}
                 </button>
@@ -262,44 +329,37 @@ export default function CartPage() {
 
           {/* Summary */}
           <div className="lg:col-span-1">
-            <div className="card p-6 sticky top-24">
-              <h2 className="text-xl font-semibold mb-6">{t('total')}</h2>
-
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between">
-                  <span className="text-text-muted">{t('subtotal')}</span>
-                  <span>{formatPrice(getTotal())}</span>
+            <div className="bg-white rounded-xl p-6 shadow-sm sticky top-24">
+              <h2 className="font-semibold mb-4">{t('subtotal')}</h2>
+              
+              <div className="space-y-2 mb-4">
+                <div className="flex justify-between text-sm">
+                  <span>{t('item')} ({items.length})</span>
+                  {/* Цена скрыта */}
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-text-muted">{t('delivery')}</span>
-                  <span className="text-success">{t('deliveryFree')}</span>
-                </div>
-              </div>
-
-              <div className="border-t border-border pt-4 mb-6">
-                <div className="flex justify-between text-xl font-bold">
-                  <span>{tCheckout('orderTotal')}</span>
-                  <span>{formatPrice(getTotal())}</span>
+                <div className="flex justify-between text-sm">
+                  <span>{t('delivery')}</span>
+                  <span className="text-green-600">{t('deliveryFree')}</span>
                 </div>
               </div>
 
-              {step === 'cart' && (
-                <button
-                  onClick={() => setStep('checkout')}
-                  className="w-full btn-primary py-4"
-                >
-                  {t('checkout')}
-                </button>
-              )}
+              <div className="border-t pt-4">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="font-semibold">{t('total')}</span>
+                  {/* Цена скрыта по требованию п.9 */}
+                  {/* <span className="text-xl font-bold text-primary">{formatPrice(getTotal())}</span> */}
+                  <span className="text-sm text-gray-500">Цена по запросу</span>
+                </div>
 
-              {step === 'checkout' && (
-                <button
-                  onClick={() => setStep('cart')}
-                  className="w-full btn-outline py-3"
-                >
-                  Назад к корзине
-                </button>
-              )}
+                {step === 'cart' && (
+                  <button
+                    onClick={() => setStep('checkout')}
+                    className="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-hover"
+                  >
+                    {t('checkout')}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

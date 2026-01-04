@@ -159,6 +159,8 @@
 	},
 	
 "admin": {
+      "image": "Rasm",
+
 	"createUser": {
   "title": "Foydalanuvchi yaratish",
   "editTitle": "Foydalanuvchini tahrirlash",

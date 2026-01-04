@@ -86,8 +86,9 @@ export default function AdminCategoriesPage() {
                         {getLocalized(cat, locale)?.name || '—'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">{cat.slug}</td>
-                      <td className="px-6 py-4 text-right space-x-2">
-                        <Link 
+                      <td className="px-6 py-4 text-right space-x-2 ">
+                        <div className="flex items-center justify-end">
+ <Link 
                           href={`/admin/categories/${cat.id}`} 
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg inline-block transition-colors"
                           title={commonT('edit')}
@@ -101,6 +102,8 @@ export default function AdminCategoriesPage() {
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
+                        </div>
+                       
                       </td>
                     </tr>
                   ))}
