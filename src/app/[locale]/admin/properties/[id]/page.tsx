@@ -41,11 +41,19 @@ export default function AdminPropertyEditPage({ params }: Props) {
           setForm({
             key: prop.key || '',
             type: prop.type || 'text',
-            options: prop.options?.length ? prop.options : [''],
-            ru: prop.ru || { label: '' },
-            en: prop.en || { label: '' },
-            uz: prop.uz || { label: '' },
-            tj: prop.tj || { label: '' },
+           options: (prop as any).options?.length ? (prop as any).options : [''],
+           ru: { 
+  label: prop.ru?.label ?? '' 
+},
+en: { 
+  label: prop.en?.label ?? '' 
+},
+uz: { 
+  label: prop.uz?.label ?? '' 
+},
+tj: { 
+  label: prop.tj?.label ?? '' 
+},
           });
         }
         setLoading(false);
