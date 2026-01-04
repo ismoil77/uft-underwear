@@ -49,33 +49,63 @@ export default function AdminPropertiesPage() {
     return currentTranslation?.label || prop.ru?.label || prop.key;
   };
 
-  function openModal(property?: Property) {
-    if (property) {
-      setEditingId(property.id);
-      setForm({
-        key: property.key,
-        type: property.type,
-        options: property.options?.join(', ') || '',
-        ru: property.ru || { label: '' },
-        en: property.en || { label: '' },
-        uz: property.uz || { label: '' },
-        tj: property.tj || { label: '' },
-      });
-    } else {
-      setEditingId(null);
-      setForm({
-        key: '',
-        type: 'text',
-        options: '',
-        ru: { label: '' },
-        en: { label: '' },
-        uz: { label: '' },
-        tj: { label: '' },
-      });
-    }
-    setShowModal(true);
+  // function openModal(property?: Property) {
+  //   if (property) {
+  //     setEditingId(property.id);
+  //     setForm({
+  //       key: property.key,
+  //       type: property.type,
+  //       options: property.options?.join(', ') || '',
+  //       ru: property.ru || { label: '' },
+  //       en: property.en || { label: '' },
+  //       uz: property.uz || { label: '' },
+  //       tj: property.tj || { label: '' },
+  //     });
+  //   } else {
+  //     setEditingId(null);
+  //     setForm({
+  //       key: '',
+  //       type: 'text',
+  //       options: '',
+  //       ru: { label: '' },
+  //       en: { label: '' },
+  //       uz: { label: '' },
+  //       tj: { label: '' },
+  //     });
+  //   }
+  //   setShowModal(true);
+  // }
+function openModal(property?: Property) {
+  if (property) {
+    // 1. Исправляем ошибку SetStateAction<number | null>
+    setEditingId(property.id ?? null); 
+    
+    setForm({
+      key: property.key,
+      // 2. Используем as any, чтобы TS не ругался на отсутствие полей в интерфейсе
+      type: (property as any).type || 'text',
+      options: (property as any).options?.join(', ') || '',
+      // 3. Исправляем потенциальную ошибку локализации через ?? ''
+      ru: { label: property.ru?.label ?? '' },
+      en: { label: property.en?.label ?? '' },
+      uz: { label: property.uz?.label ?? '' },
+      tj: { label: property.tj?.label ?? '' },
+    });
+  } else {
+    // Очистка формы для нового свойства
+    setEditingId(null);
+    setForm({
+      key: '',
+      type: 'text',
+      options: '',
+      ru: { label: '' },
+      en: { label: '' },
+      uz: { label: '' },
+      tj: { label: '' },
+    });
   }
-
+  setShowModal(true);
+}
   async function handleSave() {
     setSaving(true);
     try {
