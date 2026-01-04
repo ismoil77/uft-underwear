@@ -99,11 +99,18 @@ export default function AdminProfilePage() {
       
       const updated = await usersAPI.update(user.id, updateData);
       
-      setUser({
-        ...user,
-        name: updated.name,
-        email: updated.email,
-      });
+      // setUser({
+      //   ...user,
+      //   name: updated.name,
+      //   email: updated.email,
+      // });
+		
+			await setUser(String(user.id), {
+				...user,
+				name: updated.name,
+				email: updated.email,
+			} as any)
+
       
       setSuccess(t('success.saved'));
       setFormData(prev => ({
