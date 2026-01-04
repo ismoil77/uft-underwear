@@ -25,10 +25,13 @@ export const siteConfig: SiteConfig = {
     position: "after"
   },
 
-  navigation: [
-    { label: "Главная", href: "/" },
-    { label: "Каталог", href: "/catalog" }
-  ],
+ 	navigation: [
+		{ href: '/', label: 'nav.home' },
+		{ href: '/catalog', label: 'nav.catalog' },
+		{ href: '/collections', label: 'nav.collections' },
+		{ href: '/about', label: 'nav.about' },
+		{ href: '/contacts', label: 'nav.contacts' },
+	],
 
   // 2. Убедитесь, что SEO содержит именно эти три поля (как в вашем интерфейсе)
   seo: {
