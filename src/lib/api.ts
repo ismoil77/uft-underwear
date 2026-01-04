@@ -298,6 +298,65 @@ export const sendStatusChangeToTelegram = async (
 };
 
 // Обновление статуса заказа с уведомлением в Telegram
+// export const updateOrderStatusWithNotification = async (
+//   orderId: number,
+//   newStatus: Order['status'],
+//   order: Order
+// ): Promise<Order | null> => {
+//   try {
+//     console.log('updateOrderStatusWithNotification:', { orderId, newStatus });
+    
+//     // Обновляем статус в базе
+//     const updatedOrder = await ordersAPI.update(orderId, { 
+//       status: newStatus,
+//       updatedAt: new Date().toISOString(),
+//     });
+    
+//     // Отправляем уведомление в Telegram
+//     await sendStatusChangeToTelegram(orderId, newStatus, order);
+    
+//     return updatedOrder;
+//   } catch (error) {
+//     console.error('Error updating order status:', error);
+//     return null;
+//   }
+// };
+
+// ============ USERS API ============
+export interface User {
+  id?: number;
+  name: string;
+  email: string;
+  password: string;
+  role: 'admin' | 'manager';
+  createdAt?: string;
+}
+
+export const usersAPI = {
+  getAll: () => fetchAPI<User[]>('/users'),
+  getById: (id: number) => fetchAPI<User>(`/users/${id}`),
+  create: (data: Omit<User, 'id'>) => fetchAPI<User>('/users', { 
+    method: 'POST', 
+    body: JSON.stringify(data) 
+  }),
+  update: (id: number, data: Partial<User>) => fetchAPI<User>(`/users/${id}`, { 
+    method: 'PATCH', 
+    body: JSON.stringify(data) 
+  }),
+  delete: (id: number) => fetchAPI<void>(`/users/${id}`, { 
+    method: 'DELETE' 
+  }),
+  getByEmail: async (email: string): Promise<User | null> => {
+    try {
+      const users = await fetchAPI<User[]>(`/users?email=${email}`);
+      return users[0] || null;
+    } catch {
+      return null;
+    }
+  },
+};
+
+// Обновление статуса заказа с уведомлением в Telegram
 export const updateOrderStatusWithNotification = async (
   orderId: number,
   newStatus: Order['status'],
