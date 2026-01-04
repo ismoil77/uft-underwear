@@ -79,10 +79,22 @@ export default function AdminProductEditPage({ params }: Props) {
               sku: product.sku || '',
               propertyIds: product.propertyIds || product.properties || [],
               collectionIds: product.collectionIds || [],
-              ru: product.ru || { name: '', description: '' },
-              en: product.en || { name: '', description: '' },
-              uz: product.uz || { name: '', description: '' },
-              tj: product.tj || { name: '', description: '' },
+             ru: { 
+  name: product.ru?.name || '', 
+  description: product.ru?.description || '' 
+},
+en: { 
+  name: product.en?.name || '', 
+  description: product.en?.description || '' 
+},
+uz: { 
+  name: product.uz?.name || '', 
+  description: product.uz?.description || '' 
+},
+tj: { 
+  name: product.tj?.name || '', 
+  description: product.tj?.description || '' 
+},
             });
           }
         }
