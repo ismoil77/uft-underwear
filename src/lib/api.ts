@@ -382,6 +382,36 @@ export const updateOrderStatusWithNotification = async (
 };
 
 
+// Telegram Settings API
+interface TelegramChat {
+  id: string
+  chatId: string
+  threadId?: string | null   // 🔥 ДОБАВИЛИ
+  name: string
+  type: 'personal' | 'group' | 'channel' | 'thread'
+  notifications: {
+    newOrder: boolean
+    statusChange: boolean
+    lowStock: boolean
+  }
+  isActive: boolean
+}
+
+
+export interface TelegramSettings {
+  id?: number;
+  botToken: string;
+  botUsername?: string;
+  isActive: boolean;
+  chats: TelegramChat[];
+}
+
+export const telegramSettingsAPI = {
+  get: () => fetchAPI<TelegramSettings[]>('/telegramSettings').then(data => data[0] || null),
+  update: (id: number, data: TelegramSettings) => fetchAPI<TelegramSettings>(`/telegramSettings/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  create: (data: TelegramSettings) => fetchAPI<TelegramSettings>('/telegramSettings', { method: 'POST', body: JSON.stringify(data) }),
+};
+
 
 
 

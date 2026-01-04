@@ -334,7 +334,8 @@
 			"team": "Team",
 			"collections": "Collections",
 			"settings": "Settings",
-			"users": "Users"
+			"users": "Users",
+			"telegram": "Telegram"
 		},
 		"roles": {
 			"admin": "Administrator",

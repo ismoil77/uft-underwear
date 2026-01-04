@@ -28,6 +28,7 @@ import {
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { Bot } from 'lucide-react'
 
 export default function AdminPage() {
 	const t = useTranslations('adminHome')
@@ -160,8 +161,16 @@ export default function AdminPage() {
 			icon: UserPlus,
 			count: stats.users,
 			color: 'bg-indigo-500',
-		})
+		},{
+  title: t('menu.telegram'),
+  href: '/admin/telegram',
+  icon: Bot,
+  count: null,
+  color: 'bg-blue-400',
+},)
+		
 	}
+
 
 	return (
 		<div className='min-h-screen bg-gray-100'>

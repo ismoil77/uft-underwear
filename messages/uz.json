@@ -334,7 +334,8 @@
 			"team": "Jamoa",
 			"collections": "To'plamlar",
 			"settings": "Sozlamalar",
-			"users": "Foydalanuvchilar"
+			"users": "Foydalanuvchilar",
+			"telegram": "Telegram"
 		},
 		"roles": {
 			"admin": "Administrator",
