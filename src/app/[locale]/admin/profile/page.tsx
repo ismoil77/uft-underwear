@@ -11,8 +11,8 @@ import { useRouter } from 'next/navigation';
 export default function AdminProfilePage() {
   const t = useTranslations('adminProfile');
   const router = useRouter();
-  const { user, setUser } = useAuthStore();
-  
+//   const { user, setUser } = useAuthStore();
+  const { user, login: setUser } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
