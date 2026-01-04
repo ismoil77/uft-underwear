@@ -38,6 +38,7 @@ export interface TeamMember {
   role: string;
   image?: string;
   order?: number;
+  description?: string;
   ru?: { name: string; role: string };
   en?: { name: string; role: string };
   uz?: { name: string; role: string };
