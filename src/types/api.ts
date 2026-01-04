@@ -32,7 +32,17 @@ export interface Collection {
   uz?: LocalizedContent;
   tj?: LocalizedContent;
 }
-
+export interface TeamMember {
+  id?: number;
+  name: string;
+  role: string;
+  image?: string;
+  order?: number;
+  ru?: { name: string; role: string };
+  en?: { name: string; role: string };
+  uz?: { name: string; role: string };
+  tj?: { name: string; role: string };
+}
 // Свойство товара
 export interface Property {
   id?: number;
