@@ -200,7 +200,7 @@ function openModal(property?: Property) {
                           <button onClick={() => openModal(prop)} className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors border border-transparent hover:border-blue-100">
                             <Edit className="w-4 h-4" />
                           </button>
-                          <button onClick={() => handleDelete(prop.id)} className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors border border-transparent hover:border-red-100">
+                          <button onClick={() => prop.id && handleDelete(prop.id)} className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors border border-transparent hover:border-red-100">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
