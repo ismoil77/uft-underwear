@@ -6,7 +6,7 @@ export const siteConfig = {
 	currency: {
 		code: 'UZS',
 		symbol: 'UZS',
-		position: 'after' as const,
+position: 'after' as 'before' | 'after', // Добавьте это приведение		
 	},
 
 	contacts: {

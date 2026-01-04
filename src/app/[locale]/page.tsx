@@ -196,7 +196,7 @@ export default function HomePage() {
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                     <div className="absolute bottom-6 left-6">
-                      <h3 className="text-white font-bold text-xl">{locale?.name || cat.slug}</h3>
+                   <h3 className="text-white font-bold text-xl">{loc?.name || cat.slug}</h3>
                     </div>
                   </Link>
                 );

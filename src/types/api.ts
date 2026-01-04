@@ -9,7 +9,24 @@ export interface LocalizedContent {
   mission?: string;
   values?: string;
 }
+// Тип для политики конфиденциальности (если используется отдельно от Policy)
+export interface PolicyPrivacy {
+  id?: number;
+  ru?: { content: string };
+  en?: { content: string };
+  uz?: { content: string };
+  tj?: { content: string };
+}
 
+// Тип для Сезонов/Коллекций (часто используется в фильтрах одежды)
+export interface Season {
+  id?: number;
+  slug: string;
+  ru?: { name: string };
+  en?: { name: string };
+  uz?: { name: string };
+  tj?: { name: string };
+}
 // Категория
 export interface Category {
   id?: number;
@@ -151,6 +168,10 @@ export interface WishlistItem {
   name: string;
   price: number;
   image?: string;
+  collectionIds?: number[];
+  propertyIds?: number[];
+  categoryIds?: number[];
+  hidePrice?: boolean;
 }
 
 // Хелпер для получения локализованного контента

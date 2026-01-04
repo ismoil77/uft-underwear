@@ -9,6 +9,11 @@ interface WishlistItem {
   price: number;
   image?: string;
   addedAt: string;
+    collectionIds?: number[];
+      propertyIds?: number[];
+
+      categoryIds?: number[];
+      hidePrice?: boolean;
 }
 
 interface WishlistStore {
