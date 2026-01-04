@@ -66,6 +66,7 @@ export function useProduct(slug: string) {
     }
   }, [slug]);
 
+  
  const localizedProduct = product
     ? {
         ...product,
