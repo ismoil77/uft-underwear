@@ -433,5 +433,64 @@
 		"confirm": {
 			"delete": "Foydalanuvchi o'chirilsinmi?"
 		}
-	}
+	},
+	"adminTelegram": {
+  "title": "Telegram bildirishnomalari",
+  "setup": {
+    "title": "Sozlash bo'yicha ko'rsatma:",
+    "step1": "@BotFather orqali bot yarating va tokenni oling",
+    "step2": "Botni guruhga qo'shing yoki unga xabar yozing",
+    "step3": "Chat ID-ni @getmyid_bot orqali bilib oling",
+    "step4": "Qabul qiluvchilarni qo'shing va bildirishnomalarni sozlang"
+  },
+  "botSettings": {
+    "title": "Bot sozlamalari",
+    "active": "Faol",
+    "token": "Bot Tokeni *",
+    "tokenPlaceholder": "Tokenni kiriting...",
+    "tokenHint": "@BotFather orqali oling",
+    "username": "Bot foydalanuvchi nomi",
+    "usernamePlaceholder": "@your_shop_bot"
+  },
+  "recipients": {
+    "title": "Bildirishnoma qabul qiluvchilar",
+    "add": "Qo'shish",
+    "newTitle": "Yangi qabul qiluvchi",
+    "chatId": "Chat ID *",
+    "threadId": "Thread ID (agar mavzu bo'lsa)",
+    "name": "Nomi *",
+    "type": "Turi",
+    "types": {
+      "personal": "👤 Shaxsiy chat",
+      "group": "👥 Guruh",
+      "channel": "📢 Kanal",
+      "thread": "🧵 Mavzu (thread)"
+    },
+    "cancel": "Bekor qilish",
+    "empty": "Qabul qiluvchilar qo'shilmagan",
+    "emptyDesc": "Bildirishnomalarni olish uchun Chat ID qo'shing",
+    "testTooltip": "Sinov xabarini yuborish",
+    "deleteConfirm": "Qabul qiluvchini o'chirib tashlaysizmi?"
+  },
+  "notifications": {
+    "newOrder": "🛒 Yangi buyurtmalar",
+    "statusChange": "📦 Holat o'zgarishi",
+    "lowStock": "⚠️ Kam qolgan mahsulotlar"
+  },
+  "updates": {
+    "title": "🤖 Botdan yangi xabarlar",
+    "refresh": "Yangilash",
+    "add": "Qo'shish",
+    "empty": "Hozircha xabarlar yo'q. Botga yozing yoki guruhga xabar yuboring.",
+    "unknown": "Noma'lum"
+  },
+  "messages": {
+    "saveSuccess": "Sozlamalar saqlandi!",
+    "saveError": "Saqlashda xatolik",
+    "tokenRequired": "Avval bot tokenini kiriting",
+    "testError": "Yuborishda xatolik"
+  },
+  "saveButton": "Sozlamalarni saqlash"
+}
+
 }

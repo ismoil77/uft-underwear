@@ -44,10 +44,12 @@ export function Header() {
 const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
   if(searchQuery.length==0){
       router.push(`/catalog?search=${encodeURIComponent(searchQuery.trim())}`);
+      setMobileMenuOpen(false); 
   }
    else if (e.key === 'Enter' && searchQuery.trim()) {
       // Переходим в каталог с параметром search
       router.push(`/catalog?search=${encodeURIComponent(searchQuery.trim())}`);
+      setMobileMenuOpen(false); 
     }
    
   };
@@ -86,7 +88,7 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
           <div className="flex items-center gap-3">
             
             {/* SEARCH BAR */}
-            <div className="flex items-center gap-2 group p-2 hover:bg-surface rounded-full transition-all border border-transparent hover:border-border">
+            <div className="flex items-center gap-2 group p-2 bg-surface rounded-full transition-all border  border-border max-sm:hidden">
               <Search className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />
               <input 
                 type="text"  
@@ -132,17 +134,17 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
           <nav className="md:hidden py-4 border-t animate-fadeIn">
             {/* Добавил поиск в мобильное меню для удобства */}
             <div className="mb-4 px-2">
-               <div className="flex items-center gap-2 bg-surface p-2 rounded-lg">
-                  <Search className="w-5 h-5 text-gray-500" />
-                  <input 
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={handleSearch}
-                    placeholder="Поиск..."
-                    className="w-full bg-transparent outline-none"
-                  />
-               </div>
+                 <div className="flex items-center gap-2 group p-2 bg-surface rounded-full transition-all border  border-border">
+              <Search className="w-5 h-5  group-text-primary transition-colors" />
+              <input 
+                type="text"  
+                value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+        onKeyDown={handleKeyDown}
+                placeholder="Поиск..." 
+                className="w-24 focus:w-48 outline-none bg-transparent text-sm transition-all duration-300 placeholder:text-gray-400"
+              />
+            </div>
             </div>
 
             {siteConfig.navigation.map((item) => (

@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl'; // Добавлен хук перевода
 import { Link } from '@/i18n/navigation';
 import { telegramSettingsAPI } from '@/lib/api';
-import { ChevronLeft, Save, Loader2, Plus, Trash2, Send, Bot, Users, Bell, CheckCircle, XCircle, TestTube } from 'lucide-react';
-import { TelegramChat, TelegramSettings, TelegramUpdate } from '@/types/api'
-
-
-
+import { ChevronLeft, Save, Loader2, Plus, Trash2, Bot, Users, Bell, CheckCircle, XCircle, TestTube, RefreshCw } from 'lucide-react';
+import { TelegramChat, TelegramSettings, TelegramUpdate } from '@/types/api';
 
 export default function AdminTelegramPage() {
+  const t = useTranslations('adminTelegram'); // Инициализация переводов
+  
   const [settings, setSettings] = useState<TelegramSettings>({
     botToken: '',
     botUsername: '',
@@ -20,31 +20,31 @@ export default function AdminTelegramPage() {
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState<string | null>(null);
   const [testResult, setTestResult] = useState<{ chatId: string; success: boolean; message: string } | null>(null);
- const [newChat, setNewChat] = useState({
-  chatId: '',
-  threadId: '',
-  name: '',
-  type: 'personal' as TelegramChat['type'],
-})
+  const [newChat, setNewChat] = useState({
+    chatId: '',
+    threadId: '',
+    name: '',
+    type: 'personal' as TelegramChat['type'],
+  });
   const [showAddChat, setShowAddChat] = useState(false);
-const [updates, setUpdates] = useState<TelegramUpdate[]>([])
-const [loadingUpdates, setLoadingUpdates] = useState(false)
-const loadUpdates = async () => {
-  setLoadingUpdates(true)
-  try {
-    const res = await fetch('/api/telegram/updates')
-    const data = await res.json()
-    setUpdates(data)
-  } catch {}
-  finally {
-    setLoadingUpdates(false)
-  }
-}
-useEffect(() => {
-  loadUpdates()
-}, [])
+  const [updates, setUpdates] = useState<TelegramUpdate[]>([]);
+  const [loadingUpdates, setLoadingUpdates] = useState(false);
+
+  const loadUpdates = async () => {
+    setLoadingUpdates(true);
+    try {
+      const res = await fetch('/api/telegram/updates');
+      const data = await res.json();
+      setUpdates(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingUpdates(false);
+    }
+  };
 
   useEffect(() => {
+    loadUpdates();
     telegramSettingsAPI.get()
       .then((data) => {
         if (data) setSettings(data);
@@ -62,42 +62,42 @@ useEffect(() => {
         const created = await telegramSettingsAPI.create(settings);
         setSettings(created);
       }
-      alert('Настройки сохранены!');
+      alert(t('messages.saveSuccess'));
     } catch (e) {
-      alert('Ошибка сохранения');
+      alert(t('messages.saveError'));
     } finally {
       setSaving(false);
     }
   };
 
-const handleAddChat = () => {
-  if (!newChat.chatId || !newChat.name) return
+  const handleAddChat = () => {
+    if (!newChat.chatId || !newChat.name) return;
 
-  const chat: TelegramChat = {
-  id: Date.now().toString(),
-  chatId: newChat.chatId,
-  threadId: newChat.threadId || undefined, // Используем undefined вместо null
-  name: newChat.name,
-  type: newChat.threadId ? 'thread' : newChat.type,
-  notifications: {
-    newOrder: true,
-    statusChange: true,
-    lowStock: false,
-  },
-  isActive: true,
-};
+    const chat: TelegramChat = {
+      id: Date.now().toString(),
+      chatId: newChat.chatId,
+      threadId: newChat.threadId || undefined,
+      name: newChat.name,
+      type: newChat.threadId ? 'thread' : newChat.type,
+      notifications: {
+        newOrder: true,
+        statusChange: true,
+        lowStock: false,
+      },
+      isActive: true,
+    };
 
-  setSettings({
-    ...settings,
-    chats: [...settings.chats, chat],
-  })
+    setSettings({
+      ...settings,
+      chats: [...settings.chats, chat],
+    });
 
-  setNewChat({ chatId: '', threadId: '', name: '', type: 'personal' })
-  setShowAddChat(false)
-}
+    setNewChat({ chatId: '', threadId: '', name: '', type: 'personal' });
+    setShowAddChat(false);
+  };
 
   const handleRemoveChat = (chatId: string) => {
-    if (!confirm('Удалить получателя?')) return;
+    if (!confirm(t('recipients.deleteConfirm'))) return;
     setSettings({ ...settings, chats: settings.chats.filter((c) => c.id !== chatId) });
   };
 
@@ -121,7 +121,7 @@ const handleAddChat = () => {
 
   const handleTestMessage = async (chat: TelegramChat) => {
     if (!settings.botToken) {
-      alert('Сначала введите токен бота');
+      alert(t('messages.tokenRequired'));
       return;
     }
     
@@ -142,7 +142,7 @@ const handleAddChat = () => {
       const result = await response.json();
       setTestResult({ chatId: chat.id, success: result.success, message: result.message });
     } catch (e) {
-      setTestResult({ chatId: chat.id, success: false, message: 'Ошибка отправки' });
+      setTestResult({ chatId: chat.id, success: false, message: t('messages.testError') });
     } finally {
       setTesting(null);
     }
@@ -151,311 +151,282 @@ const handleAddChat = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" />
+        <Loader2 className="w-8 h-8 animate-spin text-rose-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow-sm">
+    <div className="min-h-screen bg-gray-100 pb-10">
+      <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
           <Link href="/admin" className="text-gray-500 hover:text-gray-700">
             <ChevronLeft className="w-5 h-5" />
           </Link>
           <Bot className="w-6 h-6 text-blue-500" />
-          <h1 className="text-2xl font-bold">Telegram уведомления</h1>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
         </div>
       </header>
 
-
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         {/* Инструкция */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-          <h3 className="font-semibold text-blue-900 mb-2">📋 Как настроить:</h3>
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 shadow-sm">
+          <h3 className="font-semibold text-blue-900 mb-2">{t('setup.title')}</h3>
           <ol className="text-sm text-blue-800 space-y-2 list-decimal list-inside">
-            <li>Создайте бота через <a href="https://t.me/BotFather" target="_blank" className="underline">@BotFather</a> и получите токен</li>
-            <li>Добавьте бота в группу или напишите ему лично</li>
-            <li>Узнайте Chat ID через <a href="https://t.me/getmyid_bot" target="_blank" className="underline">@getmyid_bot</a></li>
-            <li>Добавьте получателей и настройте уведомления</li>
+            <li>{t('setup.step1')}</li>
+            <li>{t('setup.step2')}</li>
+            <li>{t('setup.step3')}</li>
+            <li>{t('setup.step4')}</li>
           </ol>
         </div>
 
         {/* Настройки бота */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Bot className="w-5 h-5" /> Настройки бота
+              <Bot className="w-5 h-5 text-gray-400" /> {t('botSettings.title')}
             </h2>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <span className="text-sm text-gray-600">Активен</span>
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <span className="text-sm text-gray-600 group-hover:text-gray-900">{t('botSettings.active')}</span>
               <div
                 onClick={() => setSettings({ ...settings, isActive: !settings.isActive })}
-                className={`w-12 h-6 rounded-full transition-colors ${settings.isActive ? 'bg-green-500' : 'bg-gray-300'} relative`}
+                className={`w-11 h-6 rounded-full transition-colors relative ${settings.isActive ? 'bg-green-500' : 'bg-gray-300'}`}
               >
-                <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${settings.isActive ? 'translate-x-6' : 'translate-x-0.5'}`}></div>
+                <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${settings.isActive ? 'translate-x-5.5' : 'translate-x-0.5 shadow-sm'}`}></div>
               </div>
             </label>
           </div>
           
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium mb-1">Bot Token *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('botSettings.token')}</label>
               <input
                 type="password"
-                placeholder="123456789:ABCdefGHIjklMNOpqrSTUvwxYZ"
+                placeholder={t('botSettings.tokenPlaceholder')}
                 value={settings.botToken}
                 onChange={(e) => setSettings({ ...settings, botToken: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg font-mono text-sm"
+                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-100 outline-none transition-all"
               />
-              <p className="text-xs text-gray-500 mt-1">Получите у @BotFather</p>
+              <p className="text-xs text-gray-500 mt-1">{t('botSettings.tokenHint')}</p>
             </div>
             
             <div>
-              <label className="block text-sm font-medium mb-1">Username бота</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('botSettings.username')}</label>
               <input
                 type="text"
-                placeholder="@your_shop_bot"
+                placeholder={t('botSettings.usernamePlaceholder')}
                 value={settings.botUsername || ''}
                 onChange={(e) => setSettings({ ...settings, botUsername: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 outline-none transition-all"
               />
             </div>
           </div>
         </div>
 
         {/* Получатели */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Users className="w-5 h-5" /> Получатели уведомлений
+              <Users className="w-5 h-5 text-gray-400" /> {t('recipients.title')}
             </h2>
             <button
               onClick={() => setShowAddChat(true)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm"
             >
-              <Plus className="w-4 h-4" /> Добавить
+              <Plus className="w-4 h-4" /> {t('recipients.add')}
             </button>
           </div>
 
-          {/* Форма добавления */}
           {showAddChat && (
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <h3 className="font-medium mb-3">Новый получатель</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200 animate-in fade-in slide-in-from-top-2">
+              <h3 className="font-semibold text-gray-800 mb-4">{t('recipients.newTitle')}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
                   type="text"
-                  placeholder="Chat ID *"
+                  placeholder={t('recipients.chatId')}
                   value={newChat.chatId}
                   onChange={(e) => setNewChat({ ...newChat, chatId: e.target.value })}
-                  className="px-3 py-2 border rounded-lg"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 outline-none transition-all"
                 />
-
-
-<input
-  type="text"
-  placeholder="Thread ID (если тема)"
-  value={newChat.threadId}
-  onChange={(e) => setNewChat({ ...newChat, threadId: e.target.value })}
-  className="px-3 py-2 border rounded-lg"
-/>
-
                 <input
                   type="text"
-                  placeholder="Название *"
+                  placeholder={t('recipients.threadId')}
+                  value={newChat.threadId}
+                  onChange={(e) => setNewChat({ ...newChat, threadId: e.target.value })}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                />
+                <input
+                  type="text"
+                  placeholder={t('recipients.name')}
                   value={newChat.name}
                   onChange={(e) => setNewChat({ ...newChat, name: e.target.value })}
-                  className="px-3 py-2 border rounded-lg"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 outline-none transition-all"
                 />
                 <select
                   value={newChat.type}
                   onChange={(e) => setNewChat({ ...newChat, type: e.target.value as any })}
-                  className="px-3 py-2 border rounded-lg"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 outline-none transition-all"
                 >
-                  <option value="personal">👤 Личный чат</option>
-  <option value="group">👥 Группа</option>
-  <option value="channel">📢 Канал</option>
-  <option value="thread">🧵 Тема (thread)</option>
+                  <option value="personal">{t('recipients.types.personal')}</option>
+                  <option value="group">{t('recipients.types.group')}</option>
+                  <option value="channel">{t('recipients.types.channel')}</option>
+                  <option value="thread">{t('recipients.types.thread')}</option>
                 </select>
               </div>
-              <div className="flex gap-2 mt-3">
-                <button onClick={handleAddChat} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
-                  Добавить
+              <div className="flex gap-3 mt-5">
+                <button onClick={handleAddChat} className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-bold shadow-sm transition-all">
+                  {t('recipients.add')}
                 </button>
-                <button onClick={() => setShowAddChat(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-100 text-sm">
-                  Отмена
+                <button onClick={() => setShowAddChat(false)} className="px-5 py-2 text-gray-600 hover:bg-gray-200 rounded-lg text-sm font-medium transition-all">
+                  {t('recipients.cancel')}
                 </button>
               </div>
             </div>
           )}
 
-          {/* Список получателей */}
           {settings.chats.length > 0 ? (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 gap-4">
               {settings.chats.map((chat) => (
-                <div key={chat.id} className={`border rounded-lg p-4 ${chat.isActive ? 'border-green-200 bg-green-50/50' : 'border-gray-200 bg-gray-50'}`}>
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">
+                <div key={chat.id} className={`group border rounded-xl p-5 transition-all ${chat.isActive ? 'border-green-100 bg-green-50/20' : 'border-gray-100 bg-gray-50'}`}>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-2xl">
                         {chat.type === 'personal' ? '👤' : chat.type === 'group' ? '👥' : '📢'}
-                      </span>
+                      </div>
                       <div>
-                        <p className="font-medium">{chat.name}</p>
-                        <p className="text-sm text-gray-500 font-mono">{chat.chatId}</p>
+                        <p className="font-bold text-gray-900">{chat.name}</p>
+                        <p className="text-xs text-gray-500 font-mono tracking-tight">{chat.chatId} {chat.threadId ? `• ${chat.threadId}` : ''}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => handleTestMessage(chat)}
                         disabled={testing === chat.id}
-                        className="p-2 hover:bg-blue-100 rounded-lg text-blue-600"
-                        title="Отправить тестовое сообщение"
+                        className="p-2 hover:bg-blue-100 rounded-lg text-blue-600 transition-colors"
+                        title={t('recipients.testTooltip')}
                       >
                         {testing === chat.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <TestTube className="w-4 h-4" />}
                       </button>
                       <button
                         onClick={() => handleToggleChatActive(chat.id)}
-                        className={`p-2 rounded-lg ${chat.isActive ? 'text-green-600 hover:bg-green-100' : 'text-gray-400 hover:bg-gray-100'}`}
+                        className={`p-2 rounded-lg transition-colors ${chat.isActive ? 'text-green-600 hover:bg-green-100' : 'text-gray-400 hover:bg-gray-200'}`}
                       >
                         {chat.isActive ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
                       </button>
                       <button
                         onClick={() => handleRemoveChat(chat.id)}
-                        className="p-2 hover:bg-red-100 rounded-lg text-red-500"
+                        className="p-2 hover:bg-red-100 rounded-lg text-red-500 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                   
-                  {/* Результат теста */}
                   {testResult && testResult.chatId === chat.id && (
-                    <div className={`text-sm p-2 rounded mb-3 ${testResult.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    <div className={`text-[11px] font-bold p-2 rounded mb-4 animate-in zoom-in-95 ${testResult.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                       {testResult.message}
                     </div>
                   )}
                   
-                  {/* Настройки уведомлений */}
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      { key: 'newOrder' as const, label: '🛒 Новые заказы', color: 'blue' },
-                      { key: 'statusChange' as const, label: '📦 Смена статуса', color: 'purple' },
-                      { key: 'lowStock' as const, label: '⚠️ Мало товара', color: 'orange' },
-                    ].map((notif) => (
-                      <button
-                        key={notif.key}
-                        onClick={() => handleToggleChatNotification(chat.id, notif.key)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                          chat.notifications[notif.key]
-                            ? `bg-${notif.color}-100 text-${notif.color}-700 ring-2 ring-${notif.color}-300`
-                            : 'bg-gray-100 text-gray-500'
-                        }`}
-                      >
-                        {notif.label}
-                      </button>
-                    ))}
+                  <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
+                    {(['newOrder', 'statusChange', 'lowStock'] as const).map((key) => {
+                      const colors: Record<string, string> = { newOrder: 'blue', statusChange: 'purple', lowStock: 'orange' };
+                      const color = colors[key];
+                      return (
+                        <button
+                          key={key}
+                          onClick={() => handleToggleChatNotification(chat.id, key)}
+                          className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
+                            chat.notifications[key]
+                              ? `bg-${color}-100 text-${color}-600 ring-1 ring-${color}-200`
+                              : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                          }`}
+                        >
+                          {t(`notifications.${key}`)}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p>Получатели не добавлены</p>
-              <p className="text-sm">Добавьте Chat ID для получения уведомлений</p>
+            <div className="text-center py-12 text-gray-400 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100">
+              <Bell className="w-12 h-12 mx-auto mb-3 opacity-20" />
+              <p className="font-semibold">{t('recipients.empty')}</p>
+              <p className="text-sm px-4">{t('recipients.emptyDesc')}</p>
             </div>
           )}
         </div>
 
-        {/* Кнопка сохранения */}
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 font-medium"
-        >
-          {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-          Сохранить настройки
-        </button>
-      </main>
-		{/* Новые сообщения от бота */}
-<div className="bg-white rounded-xl shadow-sm p-6">
-  <div className="flex items-center justify-between mb-4">
-    <h2 className="text-lg font-semibold flex items-center gap-2">
-      🤖 Новые сообщения от бота
-    </h2>
-    <button
-      onClick={loadUpdates}
-      className="text-sm text-blue-600 hover:underline"
-    >
-      Обновить
-    </button>
-  </div>
-
-  {loadingUpdates ? (
-    <Loader2 className="w-5 h-5 animate-spin" />
-  ) : updates.length ? (
-    <div className="space-y-3">
-      {updates.map((u) => (
-        <div
-          key={u.updateId}
-          className="border rounded-lg p-3 flex justify-between items-start"
-        >
-          <div>
-            <p className="font-medium">
-              {u.type === 'thread' ? '🧵' : u.type === 'group' ? '👥' : '👤'}{' '}
-              {u.userName}
-            </p>
-            <p className="text-xs text-gray-500 font-mono">
-              chatId: {u.chatId}
-              {u.threadId && ` • threadId: ${u.threadId}`}
-            </p>
-				 <p className="text-xs text-gray-500 font-mono">
-              chatTitle: {u.chatTitle}
-              
-            </p>
-            {u.text && (
-              <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                {u.text}
-              </p>
-            )}
+        {/* Новые сообщения от бота */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <RefreshCw className={`w-5 h-5 text-blue-500 ${loadingUpdates ? 'animate-spin' : ''}`} /> {t('updates.title')}
+            </h2>
+            <button
+              onClick={loadUpdates}
+              className="text-xs font-bold text-blue-600 hover:text-blue-800 uppercase tracking-widest"
+            >
+              {t('updates.refresh')}
+            </button>
           </div>
 
-          <button
-           onClick={() => {
-  const newBotChat: TelegramChat = {
-    id: Date.now().toString(),
-    chatId: String(u.chatId),
-    threadId: u.threadId ? String(u.threadId) : undefined,
-    chatTitle: u.chatTitle || '',
-    name: u.userName || u.chatTitle || 'Unknown',
-    type: (u.type as any) || 'personal',
-    notifications: {
-      newOrder: true,
-      statusChange: true,
-      lowStock: false,
-    },
-    isActive: true,
-  };
+          {loadingUpdates ? (
+            <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 animate-spin text-gray-300" /></div>
+          ) : updates.length ? (
+            <div className="space-y-3">
+              {updates.map((u) => (
+                <div key={u.updateId} className="border border-gray-100 rounded-xl p-4 flex justify-between items-center hover:bg-gray-50 transition-colors">
+                  <div className="min-w-0">
+                    <p className="font-bold text-sm text-gray-900 truncate flex items-center gap-2">
+                      <span className="text-lg">{u.type === 'thread' ? '🧵' : u.type === 'group' ? '👥' : '👤'}</span>
+                      {u.userName || u.chatTitle || t('updates.unknown')}
+                    </p>
+                    <p className="text-[10px] text-gray-400 font-mono mt-0.5">
+                      chatId: {u.chatId} {u.threadId && `• thread: ${u.threadId}`} {u.chatTitle && `• chatTitle: ${u.chatTitle}`}
+                    </p>
+                    {u.text && <p className="text-xs text-gray-600 mt-2 italic bg-white p-2 rounded-lg border border-gray-50 line-clamp-1">"{u.text}"</p>}
+                  </div>
 
-  setSettings({
-    ...settings,
-    chats: [...settings.chats, newBotChat],
-  });
-}}
-            className="ml-3 px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  <button
+                    onClick={() => {
+                      const chat: TelegramChat = {
+                        id: Date.now().toString(),
+                        chatId: String(u.chatId),
+                        threadId: u.threadId ? String(u.threadId) : undefined,
+                        name: u.userName || u.chatTitle || t('updates.unknown'),
+                        type: (u.type as any) || 'personal',
+                        notifications: { newOrder: true, statusChange: true, lowStock: false },
+                        isActive: true,
+                      };
+                      setSettings({ ...settings, chats: [...settings.chats, chat] });
+                    }}
+                    className="ml-4 flex-shrink-0 px-4 py-2 text-xs bg-rose-50 text-rose-600 font-bold rounded-lg hover:bg-rose-100 transition-colors"
+                  >
+                    {t('updates.add')}
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-400 text-center py-6 italic">{t('updates.empty')}</p>
+          )}
+        </div>
+
+        {/* Кнопка сохранения в футере */}
+        <div className="pt-6">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gray-900 text-white rounded-2xl hover:bg-black font-bold shadow-lg shadow-gray-200 transition-all disabled:opacity-50 active:scale-[0.98]"
           >
-            ➕ Добавить
+            {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+            {t('saveButton')}
           </button>
         </div>
-      ))}
-    </div>
-  ) : (
-    <p className="text-sm text-gray-500">
-      Пока нет сообщений. Напишите боту или в группу.
-    </p>
-  )}
-</div>
-
+      </main>
     </div>
   );
 }

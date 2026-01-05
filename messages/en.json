@@ -433,5 +433,64 @@
 		"confirm": {
 			"delete": "Delete user?"
 		}
-	}
+	},
+	"adminTelegram": {
+  "title": "Telegram Notifications",
+  "setup": {
+    "title": "How to setup:",
+    "step1": "Create a bot via @BotFather and get the token",
+    "step2": "Add the bot to a group or message it personally",
+    "step3": "Find out your Chat ID via @getmyid_bot",
+    "step4": "Add recipients and configure notifications"
+  },
+  "botSettings": {
+    "title": "Bot Settings",
+    "active": "Active",
+    "token": "Bot Token *",
+    "tokenPlaceholder": "Enter token...",
+    "tokenHint": "Get from @BotFather",
+    "username": "Bot Username",
+    "usernamePlaceholder": "@your_shop_bot"
+  },
+  "recipients": {
+    "title": "Notification Recipients",
+    "add": "Add",
+    "newTitle": "New Recipient",
+    "chatId": "Chat ID *",
+    "threadId": "Thread ID (if topic)",
+    "name": "Name *",
+    "type": "Type",
+    "types": {
+      "personal": "👤 Personal Chat",
+      "group": "👥 Group",
+      "channel": "📢 Channel",
+      "thread": "🧵 Topic (thread)"
+    },
+    "cancel": "Cancel",
+    "empty": "No recipients added",
+    "emptyDesc": "Add Chat ID to receive notifications",
+    "testTooltip": "Send test message",
+    "deleteConfirm": "Delete recipient?"
+  },
+  "notifications": {
+    "newOrder": "🛒 New Orders",
+    "statusChange": "📦 Status Changes",
+    "lowStock": "⚠️ Low Stock"
+  },
+  "updates": {
+    "title": "🤖 New Bot Messages",
+    "refresh": "Refresh",
+    "add": "Add",
+    "empty": "No messages yet. Message the bot or post in the group.",
+    "unknown": "Unknown"
+  },
+  "messages": {
+    "saveSuccess": "Settings saved!",
+    "saveError": "Save error",
+    "tokenRequired": "Enter bot token first",
+    "testError": "Send error"
+  },
+  "saveButton": "Save Settings"
+}
+
 }

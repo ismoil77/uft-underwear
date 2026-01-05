@@ -217,13 +217,13 @@ export default function HomePage() {
     </div>
 
     {loading ? (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 max-sm:grid-cols-1 gap-6">
         {[1,2,3,4].map(i => (
           <div key={i} className="aspect-[3/4] bg-white rounded-2xl animate-pulse" />
         ))}
       </div>
     ) : (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 max-sm:grid-cols-1 gap-6">
         {products.slice(0, 8).map(product => (
           <ProductCard
             key={product.id}
